@@ -4,14 +4,17 @@
 
 table {
     border-collapse:collapse;
+    position: relative;
+    width: 90%
 }
 
 table td {
    border:1px solid #000;
-   padding: 5px; 
+   padding: 1%;
 }
 
 div {
-    width: 1200px;
+    width: 90%;
     margin-top: 200px;
 }
+
