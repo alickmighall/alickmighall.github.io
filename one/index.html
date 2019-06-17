@@ -41,5 +41,16 @@
   <li>Two</li>
   <li>Three</li>
 </ol>
+<script src="https://static.landbot.io/landbot-widget/landbot-widget-1.0.0.js"></script>
+<script>
+  var myLandbot = new LandbotLivechat({
+    index: 'https://landbot.io/u/H-196822-J1Z6T2BT9PK24ARV/index.html',
+  });
+</script><script>
+  // Show a proactive message after 5 seconds
+  setTimeout(() => {
+    myLandbot.sendProactive("Need any help?");
+  }, 5000);
+</script>
 </body>
 </html>
