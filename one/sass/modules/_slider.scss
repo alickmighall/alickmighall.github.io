@@ -1,0 +1,30 @@
+ul.slider {
+  margin: 0 auto;
+
+  li.slide {
+    color: #ffffff;
+
+    .img-wrapper {
+      width: 100%;
+      margin-bottom: 25px;
+      text-align: center;
+      img {
+        margin: 0 auto;
+      }
+      @media (max-width: $tablet) {
+        display: none;
+      }
+    }
+
+    p, a {
+      font-size: 40px;
+      line-height: 60px;
+      color: #ffffff;
+      text-align: center;
+      @media (max-width: $tablet) {
+        font-size: 26px;
+        line-height: 38px;
+      }
+    }
+  }
+}

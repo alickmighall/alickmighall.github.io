@@ -1,0 +1,28 @@
+@font-face {
+  font-family: "Comfortaa-Regular";
+  src: url('../fonts/Comfortaa-Regular.ttf') format('truetype')
+}
+
+@font-face {
+  font-family: "Comfortaa-Bold";
+  src: url('../fonts/Comfortaa-Bold.ttf') format('truetype')
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, p, li, a {
+  margin-bottom: 20px;
+  font-family: "Comfortaa-Regular";
+  font-size: 20px;
+  line-height: 24px;
+}
+
+h1, h2, h3, h4, h5 {
+  color: #58babb;
+}
+
+p, li, a {
+  color: #ffffff;
+}

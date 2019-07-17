@@ -1,0 +1,49 @@
+.social {
+  position: absolute;
+  bottom: 54px;
+  left: 0;
+  width: 100%;
+  ul {
+    text-align: center;
+    li {
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 0;
+      a {
+        display: block;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 0;
+        background-color: #82a2ad;
+        &:hover {
+          background-color: #e92575;
+        }
+        img {
+          width: 20px;
+          padding-top: 10px;
+        }
+      }
+    }
+  }
+
+  @media (min-width: $tablet) {
+    bottom: 45%;
+    left: 10px;
+    width: inherit;
+    ul {
+      text-align: left;
+      li {
+        display: block;
+        margin-bottom: 10px;
+        a {
+          width: 60px;
+          height: 60px;
+          padding-left: 8px;
+          img {
+            width: 40px;
+          }
+        }
+      }
+    }
+  }
+}

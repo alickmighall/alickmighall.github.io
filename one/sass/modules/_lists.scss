@@ -1,0 +1,82 @@
+ul.horizontal {
+  li {
+    display: inline;
+    margin: 0 15px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  &.seperated {
+    li:after {
+      content: "|";
+      position: relative;
+      right: -15px;
+    }
+    li:last-child:after {
+      content: "";
+    }
+  }
+}
+
+ul.tabs {
+  text-align: center;
+  li {
+    display: inline-block;
+    margin: 0 15px;
+    a {
+      position: relative;
+      display: block;
+      width: 252px;
+      height: 52px;
+      background-color: #82a2ad;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      font-family: "Comfortaa-Bold";
+      font-size: 26px;
+      text-decoration: none;
+      color: #ffffff;
+      text-align: center;
+      margin: 0;
+      padding: 18px;
+
+      &:hover, &.active {
+        background-color: #e92575;
+      }
+
+      &:before {
+        content: " ";
+        background-image: url("../images/caret.png");
+        height: 30px;
+        width: 30px;
+        display: block;
+        position: absolute;
+        background-size: 30px;
+        top: -17px;
+        left: 111px;
+      }
+
+      @media (max-width: $sm-desktop) {
+        width: 182px;
+        font-size: 18px;
+
+        &:before {
+          left: 76px;
+        }
+      }
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
