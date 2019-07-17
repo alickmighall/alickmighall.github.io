@@ -32,18 +32,18 @@ ul.tabs {
     a {
       position: relative;
       display: block;
-      width: 252px;
-      height: 52px;
+      width: 242px;
+      height: 42px;
       background-color: #82a2ad;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
       font-family: "Comfortaa-Bold";
-      font-size: 26px;
+      font-size: 12px;
       text-decoration: none;
       color: #ffffff;
       text-align: center;
       margin: 0;
-      padding: 18px;
+      padding: 14px;
 
       &:hover, &.active {
         background-color: #e92575;
@@ -63,7 +63,7 @@ ul.tabs {
 
       @media (max-width: $sm-desktop) {
         width: 182px;
-        font-size: 18px;
+        font-size: 14px;
 
         &:before {
           left: 76px;
