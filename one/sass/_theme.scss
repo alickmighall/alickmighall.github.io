@@ -18,6 +18,8 @@
     .col {
       flex: 1;
       p {
+        position: relative;
+        bottom: 6px;
         margin: 0;
         color: #ffffff;
         text-align: right;
