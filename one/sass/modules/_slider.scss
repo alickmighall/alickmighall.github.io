@@ -2,6 +2,10 @@ ul.slider {
   width: 700px;
   margin: 0 auto;
 
+  @media (max-width: $tablet) {
+    width: 100%;
+  }
+
   li.slide {
     color: #ffffff;
 
