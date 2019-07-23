@@ -8,6 +8,8 @@ $sm-desktop: 1500px;
 @import "layout";
 @import "theme";
 
+@import "modules/form";
+@import "modules/grid";
 @import "modules/lists";
 @import "modules/menu";
 @import "modules/slider";

@@ -12,7 +12,7 @@
   box-sizing: border-box;
 }
 
-h1, h2, h3, h4, h5, p, li, a {
+h1, h2, h3, h4, h5, p, li, a, input {
   margin-bottom: 20px;
   font-family: "Comfortaa-Regular";
   font-size: 20px;
@@ -25,4 +25,11 @@ h1, h2, h3, h4, h5 {
 
 p, li, a {
   color: #ffffff;
+}
+
+small {
+  font-size: 14px;
+  a {
+    font-size: 14px;
+  }
 }
