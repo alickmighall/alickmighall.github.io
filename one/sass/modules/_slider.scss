@@ -37,3 +37,14 @@ ul.slider {
     }
   }
 }
+
+@media (max-height: 400px) {
+  ul.slider {
+    li.slide {
+      p,a {
+        font-size: 20px;
+        line-height: 30px;
+      }
+    }
+  }
+}
