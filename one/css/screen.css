@@ -4,12 +4,21 @@
 @font-face {
   font-family: "Comfortaa-Bold";
   src: url("../fonts/Comfortaa-Bold.ttf") format("truetype"); }
+@font-face {
+  font-family: "OpenSans-Light";
+  src: url("../fonts/OpenSans-Light.ttf") format("truetype"); }
 * {
   box-sizing: border-box; }
 
-h1, h2, h3, h4, h5, h6, p, li, a, input {
+h1, h2, h3, h4, h5, h6 {
   margin-bottom: 20px;
   font-family: "Comfortaa-Regular";
+  font-size: 20px;
+  line-height: 24px; }
+
+p, li, a, input {
+  margin-bottom: 20px;
+  font-family: "OpenSans-Light";
   font-size: 20px;
   line-height: 24px; }
 
