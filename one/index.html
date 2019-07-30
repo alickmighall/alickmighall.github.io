@@ -52,11 +52,12 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
   <meta name="theme-color" content="#ffffff">
   <!-- open graph and twitter card starts here -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:site" content="@flickr" />
+  <meta name="twitter:site" content="@miggle" />
   <meta name="twitter:title" content="Alick Mighall - A Digital Technologist On Your Side" />
   <meta name="twitter:description" content="Alick at miggle.one is a digital authority with over 25 years of experience successfully transforming the way businesses manage their online content" />
   <meta name="twitter:image" content="https://miggle.one/images/" />
   <meta property="og:title" content="Alick Mighall - A Digital Technologist On Your Side" />
+  <meta property="og:description" content="Alick at miggle.one is a digital authority with over 25 years of experience successfully transforming the way businesses manage their online content" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://miggle.one" />
   <meta property="og:image" content="https://miggle.one/images/" />
@@ -215,6 +216,42 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
   setTimeout(() => {
     myLandbot.sendProactive("Need any help?");
   }, 5000);
+</script>
+<script src="https://cc.cdn.civiccomputing.com/8/cookieControl-8.x.min.js"></script>
+<script>
+    var config = {
+        apiKey: '0628013b1a400fe3496d0cd6ba3f3b8b055ecb91',
+        product: 'COMMUNITY',
+        optionalCookies: [
+            {
+                    name: 'analytics',
+                    label: 'Analytics',
+                    description: '',
+                    cookies: [],
+                    onAccept : function(){},
+                    onRevoke: function(){}
+                },{
+                    name: 'marketing',
+                    label: 'Marketing',
+                    description: '',
+                    cookies: [],
+                    onAccept : function(){},
+                    onRevoke: function(){}
+                },{
+                    name: 'preferences',
+                    label: 'Preferences',
+                    description: '',
+                    cookies: [],
+                    onAccept : function(){},
+                    onRevoke: function(){}
+                }
+        ],
+
+        position: 'LEFT',
+        theme: 'DARK'
+    };
+    
+    CookieControl.load( config );
 </script>
 
 </body>
