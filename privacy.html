@@ -91,6 +91,8 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
     <main>
       <div class="content-left" style="min-width:320px;height:630px;">
         <h4><strong>Privacy Notice – miggle Limited – Effective May 2018</strong></h4>
+        <h5>Cookies</h5>
+        <p><small>You can read more in our privacy policy <a href="#cookies">here</a> about the use of cookies. However if you want to disable them, you can use the Cookie Control tool in the bottom left hand corner of this page.</small></p>
 <p><small>The EU General Data Protection Regulation (GDPR), which is enforceable from 25 May 2018, provides new rights to individuals and requires organisations to provide information about their processing in a clear and transparent way. We have published this updated Privacy Notice to take into account new requirements and to explain how we collect, store and use personal data. When we refer to “we”, “us” or “our” in this Notice we mean miggle Limited.</small></p>
 <p><small>miggle Limited is a specialist Internet consultancy, helping organisations get the most out of their investment in digital. Our company registration number is 6200250. Our VAT registration number is GB 909 8858 62.</small></p>
 <p><small>This Privacy Notice applies to personal data collected by miggle Limited and processed at various locations across Sussex. miggle Limited, as a Data Controller, is committed to protecting the privacy of our clients and subscribers. We endeavour to comply with the Data Protection Act 1998, the EU General Data Protection Regulation (GDPR), the Privacy and Electronic Communications (EC Directive) Regulations 2003 (amended) and other relevant legislation.</small></p>
@@ -145,7 +147,6 @@ Email: <a href="mailto:info@miggle.one">info@miggle.one</a></small></p>
 </tr>
 </tbody>
 </table>
-<!-- #tablepress-2 from cache -->
 <p><small><strong>Email newsletters</strong></small></p>
 <p><small>On the miggle website we invite you to opt-in and give your Consent to receive our newsletters. You can unsubscribe from these at any point by clicking on the unsubscribe link on any email you receive from us. Alternatively, you can unsubscribe by emailing <a href="mailto:info@miggle.one">info@miggle.one</a>. We use a third-party provider, MailChimp, to deliver our newsletter. We gather statistics around email opening and clicks using industry standard technologies to help us monitor and improve our e-newsletter. For more information, please see MailChimp’s privacy notice <a href="https://mailchimp.com/legal/privacy/">https://mailchimp.com/legal/privacy/</a>.</small></p>
 <p><small>The email newsletter is sent to only those who have opted-in through the opt-in procedure, and to those based on our legitimate interests in line with the Information Commissioner’s Office guidance on B2B marketing. Subscribers are at any time entitled to revoke the declaration of consent and anyone receiving the newsletter based on our legitimate interests has the right to opt-out at any time. Each email newsletter miggle Limited sends contains an unsubscribe link through which you may easily opt-out of receiving future email newsletters from us. If you do not wish to receive email newsletters from miggle Limited, simply click the unsubscribe link and follow the instructions to unsubscribe your e-mail address or to change your preferences.</small></p>
@@ -181,7 +182,8 @@ Address: 100 Church Street, Brighton and Hove, BN1 1UJ</small></p>
 
 <h4><strong>The website </strong><a href="https://miggle.one"><strong>miggle.one</strong></a></h4>
 <p><small>This website and its owners take a proactive approach to user privacy and ensure the necessary steps are taken to protect the privacy of its users throughout their visiting experience.</small></p>
-<p><small><strong>Use of cookies</strong></small></p>
+<a name="cookies"></a>
+<h5>Use of cookies</strong></small></h5>
 <p><small>This website uses cookies – small text files that are placed on your machine to help the website provide a better user experience. In general, cookies are used to retain user preferences, store information about the user’s interactions and usage of the website, and provide anonymised tracking data to third party applications like Google Analytics. As a rule, cookies will make your browsing experience better. However, you may prefer to disable cookies on this site and on others. The most effective way to do this is to disable cookies in your browser. We suggest consulting the Help section of your browser or taking a look at the <a href="http://www.aboutcookies.org/">About Cookies</a> website which offers guidance for all modern browsers.</small></p>
 <p><small>Where applicable this website uses a cookie control system allowing the user on their first visit to the website to agree to the use of cookies on their computer/device. This complies with legislation requirements for websites to obtain explicit consent from users before leaving behind or reading files such as cookies on a user’s computer/device.</small></p>
 <p><small>Users are advised that if they wish to deny the use and saving of cookies from this website on to their computers hard drive/device they should take necessary steps within their web browser security settings to disable/block all cookies from this website and its external serving vendors.</small></p>
@@ -299,6 +301,56 @@ Address: 100 Church Street, Brighton and Hove, BN1 1UJ</small></p>
      image: "https://miggle.one/images/im-icon.png"
   }
   });
+</script>
+<script src="https://cc.cdn.civiccomputing.com/8/cookieControl-8.x.min.js"></script>
+<script>
+    var config = {
+        apiKey: '0628013b1a400fe3496d0cd6ba3f3b8b055ecb91',
+        product: 'COMMUNITY',
+        statement : {
+        description: 'For more detailed information on the cookies we use, please check our',
+        name : 'Privacy Policy',
+        url: 'https://miggle.one/privacy.html',
+        updated : '31/08/2019'
+    },
+        optionalCookies: [
+            {
+            name : 'analytics',
+            label: 'Analytical Cookies',
+            description: 'Analytical cookies help us to improve our website by collecting and reporting information on its usage.',
+            cookies: ['_ga', '_gid', '_gat', '__utma', '__utmt', '__utmb', '__utmc', '__utmz', '__utmv'],
+            recommendedState: "on",
+            onAccept : function(){
+                console.log (11);
+            },
+            onRevoke: function(){
+                // Disable Google Analytics
+                window['ga-disable-UA-2773524-44'] = true;
+                // End Google Analytics
+            }
+       		},{
+                    name: 'marketing',
+                    label: 'Marketing',
+                    description: 'Test description',
+                    cookies: [],
+                    recommendedState: "on",
+                    onAccept : function(){},
+                    onRevoke: function(){}
+                },{
+                    name: 'preferences',
+                    label: 'Preferences',
+                    description: '',
+                    cookies: [],
+                    onAccept : function(){},
+                    onRevoke: function(){}
+                }
+        ],
+
+        position: 'LEFT',
+        theme: 'DARK'
+    };
+
+    CookieControl.load( config );
 </script>
 
 </body>
