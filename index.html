@@ -224,13 +224,23 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
         product: 'COMMUNITY',
         optionalCookies: [
             {
-                    name: 'analytics',
-                    label: 'Analytics',
-                    description: '',
-                    cookies: [],
-                    onAccept : function(){},
-                    onRevoke: function(){}
-                },{
+            name : 'analytics',
+            label: 'Analytical Cookies',
+            description: 'Analytical cookies help us to improve our website by collecting and reporting information on its usage.',
+            cookies: ['_ga', '_gid', '_gat', '__utma', '__utmt', '__utmb', '__utmc', '__utmz', '__utmv'],
+            initialConsentState: "on",
+            onAccept : function(){
+                ccAddAnalytics();
+                ccAddMatomoAnalytics();
+            },
+            onRevoke: function(){
+                // Disable Google Analytics
+                window['ga-disable-UA-2773524-44'] = true;
+                // End Google Analytics
+            }
+       		},
+
+            {
                     name: 'marketing',
                     label: 'Marketing',
                     description: '',
