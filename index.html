@@ -217,56 +217,7 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
     myLandbot.sendProactive("Need any help?");
   }, 5000);
 </script>
-<script src="https://cc.cdn.civiccomputing.com/8/cookieControl-8.x.min.js"></script>
-<script>
-    var config = {
-        apiKey: '0628013b1a400fe3496d0cd6ba3f3b8b055ecb91',
-        product: 'COMMUNITY',
-        statement : {
-        description: 'For more detailed information on the cookies we use, please check our',
-        name : 'Privacy Policy',
-        url: 'https://miggle.one/privacy.html',
-        updated : '31/08/2019'
-    },
-        optionalCookies: [
-            {
-            name : 'analytics',
-            label: 'Analytical Cookies',
-            description: 'Analytical cookies help us to improve our website by collecting and reporting information on its usage.',
-            cookies: ['_ga', '_gid', '_gat', '__utma', '__utmt', '__utmb', '__utmc', '__utmz', '__utmv'],
-            recommendedState: "on",
-            onAccept : function(){
-                console.log (11);
-            },
-            onRevoke: function(){
-                // Disable Google Analytics
-                window['ga-disable-UA-2773524-44'] = true;
-                // End Google Analytics
-            }
-       		},{
-                    name: 'marketing',
-                    label: 'Marketing',
-                    description: 'Test description',
-                    cookies: [],
-                    recommendedState: "on",
-                    onAccept : function(){},
-                    onRevoke: function(){}
-                },{
-                    name: 'preferences',
-                    label: 'Preferences',
-                    description: '',
-                    cookies: [],
-                    onAccept : function(){},
-                    onRevoke: function(){}
-                }
-        ],
 
-        position: 'LEFT',
-        theme: 'DARK'
-    };
-
-    CookieControl.load( config );
-</script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/cookie-bar/cookiebar-latest.min.js?forceLang=en&tracking=1&thirdparty=1&always=1&showNoConsent=1&showPolicyLink=1&remember=Autodetect&privacyPage=https%3A%2F%2Fmiggle.one%2Fprivacy.html"></script>
 
 </body>
