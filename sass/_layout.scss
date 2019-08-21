@@ -12,6 +12,7 @@ body {
   height: 100%;
 
   .page {
+    height: 100%;
     position: relative;
     display: flex;
     flex: 1;
@@ -29,8 +30,6 @@ body {
     }
 
     main {
-      flex: 1;
-      display: flex;
       flex: 1;
       overflow-x: scroll;
       margin: 70px auto;

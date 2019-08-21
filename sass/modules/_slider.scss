@@ -1,6 +1,8 @@
 ul.slider {
   width: 700px;
-  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
 
   @media (max-width: $tablet) {
     width: 100%;
