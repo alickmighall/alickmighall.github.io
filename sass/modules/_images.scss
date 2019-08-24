@@ -1,12 +1,16 @@
 
-.image-left {
-  float: left;
-  margin-right: 20px;
-  margin-bottom: 20px;
-}
-
-.image-right {
-  float: right;
-  margin-left: 20px;
-  margin-bottom: 20px;
+div[class^="image-"] {
+  &.image-left {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+  &.image-right {
+    float: right;
+    margin-left: 20px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: $mobile) {
+    width: 100%;
+  }
 }
