@@ -20,6 +20,24 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
 
 </script>
 
+<script>
+        var $form = $('form#miggle-form'),
+    url = 'https://script.google.com/macros/s/AKfycbxOXixXOfKY_1G75CKAIhqTlOggLF0SdI1b1vuYJdV1p-NrQkU/exec'
+
+$('#submit-form').on('click', function(e) {
+  e.preventDefault();
+  var jqxhr = $.ajax({
+    url: url,
+    method: "GET",
+    dataType: "json",
+    data: $form.serializeObject()
+  }).success(
+    // do something
+  );
+})
+</script>
+
+
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -102,46 +120,30 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
     <main>
       <div class="content" style="min-width:320px;height:630px;">
       	<h1>Contact me at Miggle One</h1>
-        <p>The best way to contact me at Miggle One is to call the number in the footer.</p>
+        <p>Please use the form below, or call the number in the footer.</p>
         <p>Or you can <a href="letsmeet.html">suggest a time</a> for us to chat about what you need from digital.</p>
         <p>And of course, you can also sign up to my <a href="signup.html">mailing list</a>.</p>
-        <p>Or use the form <a href="contactform.html">here</a>.</p> 
-        <script>
-        var $form = $('form#test-form'),
-    url = 'https://script.google.com/macros/s/AKfycbxOXixXOfKY_1G75CKAIhqTlOggLF0SdI1b1vuYJdV1p-NrQkU/exec'
-
-$('#submit-form').on('click', function(e) {
-  e.preventDefault();
-  var jqxhr = $.ajax({
-    url: url,
-    method: "GET",
-    dataType: "json",
-    data: $form.serializeObject()
-  }).success(
-    // do something
-  );
-})
-</script>
+      
         
-        <form id="test-form">
+        <form id="miggle-form">
   
   <div>
-    <label>Field 1</label>
-    <input type="text" name="Name" placeholder="Field 1"/>
+    <label>Your name</label>
+    <input type="text" name="Name" placeholder="Enter your name"/>
   </div>
 
   <div>
-    <label>Field 2</label>
-    <input type="text" name="Email" placeholder="Field 2"/>
+    <label>Your email</label>
+    <input type="text" name="Email" placeholder="Enter your email"/>
   </div>
   
   <div>
-    <label>Field 3</label>
+    <label>Your phone number</label>
     <input type="text" name="Phone" placeholder="Field 3"/>
   </div>
   
   <div>
-    <label>Field 4</label>
+    <label>Your message</label>
     <input type="text" name="Message" placeholder="Field 4"/>
   </div>
 
