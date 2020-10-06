@@ -144,7 +144,7 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
   form.addEventListener('submit', e => {
     e.preventDefault()
     fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-      .then(response => window.location.href = 'formthanks.html';)
+      .then(response => window.location.assign("formthanks.html"))
       .catch(error => console.error('Error!', error.message))
   })
 </script> 
