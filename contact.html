@@ -106,6 +106,23 @@ h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
         <p>Or you can <a href="letsmeet.html">suggest a time</a> for us to chat about what you need from digital.</p>
         <p>And of course, you can also sign up to my <a href="signup.html">mailing list</a>.</p>
         <p>Or use the form <a href="contactform.html">here</a>.</p> 
+        <script>
+        var $form = $('form#test-form'),
+    url = 'https://script.google.com/macros/s/abcdefghijklmnopqrstuvwxyz1234567890/exec'
+
+$('#submit-form').on('click', function(e) {
+  e.preventDefault();
+  var jqxhr = $.ajax({
+    url: url,
+    method: "GET",
+    dataType: "json",
+    data: $form.serializeObject()
+  }).success(
+    // do something
+  );
+})
+</script>
+        
         <form id="test-form">
   
   <div>
