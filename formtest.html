@@ -3,7 +3,7 @@
 <body>
 
 <h2>Select a winner</h2>
-<h3 id="po">Input Array Elements</h3>
+<h3 id="displaywinner">Input Array Elements</h3>
 
 <form>
   	<label for="name">Name:</label>
@@ -41,63 +41,41 @@
   	<label for="creditscore">Credit Score</label>
   	<input type="number" id="creditscore" name="creditscore[]" value="90"><br><br>
   
-  
   	<button type="button" name="button" onclick="Winner()">
             Submit
     </button>
 </form>
 
-<p id="displayname"></p>
-<p id="displaytestscore"></p>
-<p id="displaycreditscore"></p>
-<p id="displaytotalscore"></p>
-<p id="displaywinner"></p>
-<p id="displaywinnername"></p>
 
 <script type="text/javascript">
-    var k = "The respective names are :";
-    var l = "The respective test scores are :";
-    var m = "The respective credit scores are :";
-    var n = "The respective total scores are :";
     var allentries = 0;
-    function Winner() {
-        
+    var s=0;
+    function Winner() {     
         var nameinput = document.getElementsByName('name[]');
  		var testinput = document.getElementsByName('testscore[]');
  		var creditinput = document.getElementsByName('creditscore[]');
  		const entries =[];
- 		
 			for (var i = 0; i < nameinput.length; i++) {
-				var a = nameinput[i];
-				k = k + "name[" + i + "].value= " + a.value + " ";
-				var aa = testinput[i];
-				l = l + "testscore[" + i + "].value= " + aa.value + " ";
-				var ab = creditinput[i];
-				m = m + "creditscore[" + i + "].value= " + ab.value + " ";
 				entries[i] = testscore[i].value*creditscore[i].value;
-				allentries=allentries+ parseInt(entries[i]);
-				n = n + "entries[" + i + "]= " + entries[i] + " " + allentries + " ";
-
-				
+				allentries=allentries+ parseInt(entries[i]);				
 			}
 			winningnumber = 1 + Math.floor(Math.random() * allentries);
 			for (var q=0; q < nameinput.length; q++){
-				if (parseInt(winningnumber) <= parseInt(entries[q])) {
-					document.getElementById("displaywinnername").innerHTML = "we have a winner" + q;
+				if (q==0 && parseInt(winningnumber) <= parseInt(entries[q])) {
+					var r=q;
+					document.getElementById("displaywinner").innerHTML = "This month's winner is " + nameinput[r].value;
+					q=nameinput.length;
+				} else if (parseInt(winningnumber) >= s &&  parseInt(winningnumber) <= (s + parseInt(entries[q]))) {				
+					var r=q;
+					document.getElementById("displaywinner").innerHTML = "This month's winner is " + nameinput[r].value;
+					q=nameinput.length;
+				} else {
+					s=s+parseInt(entries[q]);
 				}
 			}
- 
-            document.getElementById("displayname").innerHTML = k;
-            document.getElementById("displaytestscore").innerHTML = l;
-            document.getElementById("displaycreditscore").innerHTML = m;
-            document.getElementById("displaytotalscore").innerHTML = n;
-            document.getElementById("displaywinner").innerHTML = winningnumber;
-            document.getElementById("po").innerHTML = "Output";
             
         }
 </script>
-
-
 
 </body>
 </html>
