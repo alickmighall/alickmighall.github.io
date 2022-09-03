@@ -51,12 +51,15 @@
 <p id="displaytestscore"></p>
 <p id="displaycreditscore"></p>
 <p id="displaytotalscore"></p>
+<p id="displaywinner"></p>
+<p id="displaywinnername"></p>
 
 <script type="text/javascript">
     var k = "The respective names are :";
     var l = "The respective test scores are :";
     var m = "The respective credit scores are :";
     var n = "The respective total scores are :";
+    var allentries = 0;
     function Winner() {
         
         var nameinput = document.getElementsByName('name[]');
@@ -72,14 +75,23 @@
 				var ab = creditinput[i];
 				m = m + "creditscore[" + i + "].value= " + ab.value + " ";
 				entries[i] = testscore[i].value*creditscore[i].value;
-				n = n + "entries[" + i + "]= " + entries[i] + " ";
+				allentries=allentries+ parseInt(entries[i]);
+				n = n + "entries[" + i + "]= " + entries[i] + " " + allentries + " ";
+
 				
+			}
+			winningnumber = 1 + Math.floor(Math.random() * allentries);
+			for (var q=0; q < nameinput.length; q++){
+				if (parseInt(winningnumber) <= parseInt(entries[q])) {
+					document.getElementById("displaywinnername").innerHTML = "we have a winner" + q;
+				}
 			}
  
             document.getElementById("displayname").innerHTML = k;
             document.getElementById("displaytestscore").innerHTML = l;
             document.getElementById("displaycreditscore").innerHTML = m;
             document.getElementById("displaytotalscore").innerHTML = n;
+            document.getElementById("displaywinner").innerHTML = winningnumber;
             document.getElementById("po").innerHTML = "Output";
             
         }
