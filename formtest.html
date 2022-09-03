@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Select a winner</h2>
+<h3 id="po">Input Array Elements</h3>
+
+<form>
+  	<label for="name">Name:</label>
+  	<input type="text" id="name" name="name[]" value="John">
+ 	<label for="testscore">Test score</label>
+  	<input type="number" id="testscore" name="testscore[]" value="20">
+  	<label for="creditscore">Credit Score</label>
+ 	<input type="number" id="creditscore" name="creditscore[]" value="30"><br><br>
+  
+	<label for="name">Name:</label>
+ 	<input type="text" id="name" name="name[]" value="Jack">
+  	<label for="testscore">Test score</label>
+ 	<input type="number" id="testscore" name="testscore[]" value="10">
+ 	<label for="creditscore">Credit Score</label>
+  	<input type="number" id="creditscore" name="creditscore[]" value="40"><br><br>
+  
+    <label for="name">Name:</label>
+  	<input type="text" id="name" name="name[]" value="Joseph">
+  	<label for="testscore">Test score</label>
+  	<input type="number" id="testscore" name="testscore[]" value="60">
+  	<label for="creditscore">Credit Score</label>
+  	<input type="number" id="creditscore" name="creditscore[]" value="80"><br><br>
+  
+    <label for="name">Name:</label>
+  	<input type="text" id="name" name="name[]" value="Jim">
+  	<label for="testscore">Test score</label>
+  	<input type="number" id="testscore" name="testscore[]" value="40">
+  	<label for="creditscore">Credit Score</label>
+ 	<input type="number" id="creditscore" name="creditscore[]" value="70"><br><br>
+  
+    <label for="name">Name:</label>
+  	<input type="text" id="name" name="name[]" value="Jeremiah">
+ 	<label for="testscore">Test score</label>
+  	<input type="number" id="testscore" name="testscore[]" value="40">
+  	<label for="creditscore">Credit Score</label>
+  	<input type="number" id="creditscore" name="creditscore[]" value="90"><br><br>
+  
+  
+  	<button type="button" name="button" onclick="Winner()">
+            Submit
+    </button>
+</form>
+
+<p id="displayname"></p>
+<p id="displaytestscore"></p>
+<p id="displaycreditscore"></p>
+<p id="displaytotalscore"></p>
+
+<script type="text/javascript">
+    var k = "The respective names are :";
+    var l = "The respective test scores are :";
+    var m = "The respective credit scores are :";
+    var n = "The respective total scores are :";
+    function Winner() {
+        
+        var nameinput = document.getElementsByName('name[]');
+ 		var testinput = document.getElementsByName('testscore[]');
+ 		var creditinput = document.getElementsByName('creditscore[]');
+ 		const entries =[];
+ 		
+			for (var i = 0; i < nameinput.length; i++) {
+				var a = nameinput[i];
+				k = k + "name[" + i + "].value= " + a.value + " ";
+				var aa = testinput[i];
+				l = l + "testscore[" + i + "].value= " + aa.value + " ";
+				var ab = creditinput[i];
+				m = m + "creditscore[" + i + "].value= " + ab.value + " ";
+				entries[i] = testscore[i].value*creditscore[i].value;
+				n = n + "entries[" + i + "]= " + entries[i] + " ";
+				
+			}
+ 
+            document.getElementById("displayname").innerHTML = k;
+            document.getElementById("displaytestscore").innerHTML = l;
+            document.getElementById("displaycreditscore").innerHTML = m;
+            document.getElementById("displaytotalscore").innerHTML = n;
+            document.getElementById("po").innerHTML = "Output";
+            
+        }
+</script>
+
+
+
+</body>
+</html>
