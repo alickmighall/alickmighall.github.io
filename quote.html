@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Send With Confidence</h2>
+<h3 id="displayquote">Underwrite your customers' ability to send their digital assets with confidence</h3>
+
+<form>
+  	<label for="avgTXN">Average Transaction in $:</label>
+  	<input type="number" id="avgTXN" name="avgTXN" value="5.50">
+ 	<label for="activeWallets">Active Wallets:</label>
+  	<input type="number" id="activeWallets" name="activeWallets" value="10000">
+  	
+	  
+  	<button type="button" name="button" onclick="Quote()">
+            Get a Quote!
+    </button>
+</form>
+
+
+<script type="text/javascript">
+    function Quote() {     
+        var avgTXNinput = document.getElementsByName('avgTXN');
+ 		var activeWalletsinput = document.getElementsByName('activeWallets');
+ 		quoteValue = avgTXN.value*activeWallets.value*0.05;
+		document.getElementById("displayquote").innerHTML = "Protect your customers transactions from  $" + quoteValue + " annually";					
+        }
+</script>
+
+</body>
+</html>
