@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Finance: The £1M Transfer - Then vs. Now</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+        .kpi-card h3 {
+            color: #FF4E50;
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            color: #FC913A;
+            line-height: 1;
+        }
+        .flow-box {
+            border-color: #FF4E50;
+            background-color: white;
+        }
+        .header-gradient {
+            background: linear-gradient(90deg, #FF4E50, #FC913A);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="header-gradient text-white p-8 text-center shadow-lg">
+        <h1 class="text-4xl md:text-5xl font-bold mb-2">The Million Pound Divide</h1>
+        <p class="text-lg md:text-xl max-w-4xl mx-auto">A Tale of Two Eras: Comparing the financial worlds behind the first £1M transfers in English men's (1979) and women's (2025) football.</p>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-2">1979: Men's Football</h2>
+                    <p class="text-gray-600 mb-4">Trevor Francis to Nottingham Forest</p>
+                    <p class="text-6xl font-bold text-[#FF4E50]">£1.15M</p>
+                    <p class="mt-4 text-gray-700">A monumental fee in a gate-receipt-driven era, signifying immense sporting ambition but also financial risk for clubs operating on tight, undiversified budgets.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-2">2025: Women's Football</h2>
+                    <p class="text-gray-600 mb-4">Olivia Smith to Arsenal</p>
+                    <p class="text-6xl font-bold text-[#FF4E50]">£1M+</p>
+                    <p class="mt-4 text-gray-700">A landmark deal reflecting a commercially vibrant and rapidly professionalizing game, where player trading is becoming a strategic, profitable part of club finance.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-2">Two Worlds of Revenue</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The financial models behind these transfers were fundamentally different. In 1979, clubs relied almost entirely on fans coming through the turnstiles. Today, the women's game is fueled by a diverse and growing mix of commercial, broadcast, and matchday income.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-center mb-4">1979 Men's Football: Estimated Revenue Mix</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart1979"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-center mb-4">2023/24 Women's Super League: Revenue Mix</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChartWSL"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-2">The Engine of Growth in Women's Football</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">A powerful combination of increased visibility, strategic investment, and growing fan engagement is propelling the women's game into a new financial stratosphere.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
+                <div class="kpi-card p-6 border-t-4 border-[#FF4E50] rounded-lg bg-gray-50">
+                    <div class="text-5xl mb-2">📺</div>
+                    <h3 class="text-2xl font-bold mb-2">+100%</h3>
+                    <p class="text-gray-700">Increase in the value of the latest WSL domestic broadcast deal, a clear signal of rising media interest.</p>
+                </div>
+                <div class="kpi-card p-6 border-t-4 border-[#FC913A] rounded-lg bg-gray-50">
+                     <div class="text-5xl mb-2">🤝</div>
+                    <h3 class="text-2xl font-bold mb-2">2x</h3>
+                    <p class="text-gray-700">The value of Barclays' renewed WSL title sponsorship, which doubled to £15M per season.</p>
+                </div>
+                <div class="kpi-card p-6 border-t-4 border-[#F9D423] rounded-lg bg-gray-50">
+                     <div class="text-5xl mb-2">🏟️</div>
+                    <h3 class="text-2xl font-bold mb-2">+73%</h3>
+                    <p class="text-gray-700">Surge in matchday revenue, driven by a 31% rise in average league attendance as more fans fill the stands.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-2">The Transfer Fee Explosion</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The journey to the £1M mark has been rapid. The world transfer record in women's football has not just grown, it has accelerated dramatically in just a few short years, showcasing exponential market growth.</p>
+            <div class="chart-container h-96 md:h-[450px] max-w-4xl">
+                <canvas id="transferRecordChart"></canvas>
+            </div>
+        </section>
+
+        <section class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-2">The Road to £5 Million</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">The £1M fee is not the ceiling; it's a milestone on a much longer journey. A powerful, self-reinforcing cycle of investment and growth suggests the first £5M transfer could happen within the next 3-5 years.</p>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 text-center">
+                <div class="flow-box p-4 rounded-lg border-2 shadow">
+                    <p class="font-semibold">Strategic Investment</p>
+                    <p class="text-sm text-gray-600">(UEFA, Clubs)</p>
+                </div>
+                <div class="flow-arrow transform md:rotate-0">➔</div>
+                <div class="flow-box p-4 rounded-lg border-2 shadow">
+                    <p class="font-semibold">Higher Quality</p>
+                    <p class="text-sm text-gray-600">(Players, Leagues)</p>
+                </div>
+                <div class="flow-arrow transform md:rotate-0">➔</div>
+                <div class="flow-box p-4 rounded-lg border-2 shadow">
+                    <p class="font-semibold">Larger Audience</p>
+                    <p class="text-sm text-gray-600">(TV, Stadiums)</p>
+                </div>
+                <div class="flow-arrow transform md:rotate-0">➔</div>
+                 <div class="flow-box p-4 rounded-lg border-2 shadow">
+                    <p class="font-semibold">Increased Revenue</p>
+                    <p class="text-sm text-gray-600">(Media, Sponsors)</p>
+                </div>
+                 <div class="flow-arrow transform rotate-90 md:rotate-0">⤵</div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center p-4 bg-gray-800 text-white text-sm">
+        <p>Data sourced from the <a href="million_pound_divide.pdf">"Million-Pound Divide"</a> financial report. Visualizations created for illustrative purposes.</p>
+        <p>Listen to the <a href="olivia_smith_transfer.mp3">audio</a></p>
+    </footer>
+
+    <script>
+        const chartColors = {
+            red: '#FF4E50',
+            orange: '#FC913A',
+            yellow: '#F9D423',
+            lightGreen: '#EDE574',
+            textColor: '#374151'
+        };
+
+        function formatLabel(str, maxLen) {
+            if (str.length <= maxLen) {
+                return str;
+            }
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxLen) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+        
+        const tooltipTitleCallback = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            } else {
+                              return label;
+                            }
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        color: chartColors.textColor,
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            }
+        };
+
+        const revenueData1979 = {
+            labels: ['Matchday', 'Commercial', 'Broadcast'],
+            datasets: [{
+                label: '1979 Revenue',
+                data: [80, 15, 5],
+                backgroundColor: [chartColors.red, chartColors.orange, chartColors.yellow],
+                borderColor: '#f0f2f5',
+                borderWidth: 4
+            }]
+        };
+        const ctx1979 = document.getElementById('revenueChart1979').getContext('2d');
+        new Chart(ctx1979, {
+            type: 'doughnut',
+            data: revenueData1979,
+            options: { ...tooltipTitleCallback,
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+            }
+        });
+        
+        const revenueDataWSL = {
+            labels: [formatLabel('Commercial', 16), formatLabel('Matchday', 16), formatLabel('Broadcast', 16), formatLabel('Other', 16)],
+            datasets: [{
+                label: '2023/24 WSL Revenue',
+                data: [40, 18, 16, 26],
+                backgroundColor: [chartColors.red, chartColors.orange, chartColors.yellow, chartColors.lightGreen],
+                borderColor: '#f0f2f5',
+                borderWidth: 4
+            }]
+        };
+        const ctxWSL = document.getElementById('revenueChartWSL').getContext('2d');
+        new Chart(ctxWSL, {
+            type: 'doughnut',
+            data: revenueDataWSL,
+            options: { ...tooltipTitleCallback,
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+            }
+        });
+
+        const transferRecordData = {
+            labels: ['2020', '2022', '2024 (Feb)', '2024 (May)', '2025'],
+            datasets: [{
+                label: 'Women\'s World Transfer Record (£k)',
+                data: [250, 400, 685, 900, 1000],
+                fill: true,
+                backgroundColor: 'rgba(255, 78, 80, 0.2)',
+                borderColor: chartColors.red,
+                tension: 0.1,
+                pointBackgroundColor: chartColors.red,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: chartColors.red,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        };
+        const ctxTransfer = document.getElementById('transferRecordChart').getContext('2d');
+        new Chart(ctxTransfer, {
+            type: 'line',
+            data: transferRecordData,
+            options: { ...tooltipTitleCallback,
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return '£' + value + 'k';
+                            },
+                            color: chartColors.textColor
+                        },
+                         grid: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: chartColors.textColor
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
