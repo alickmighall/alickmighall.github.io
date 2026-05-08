@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /formthanks.html
+
+Sitemap: https://miggle.one/sitemap.xml
