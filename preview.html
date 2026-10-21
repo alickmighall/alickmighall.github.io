@@ -1,0 +1,1401 @@
+<title>Ravensmere CRM Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@700;800&display=swap">
+<style>
+/* Layout: staff app = sidebar + working area (super-basic dark); supporter-facing views = light Ravensmere-branded panels inside the same page. Single deliberate dark look. */
+:root {
+  --bg: #030712; --surface: #111827; --card: #1f2937; --line: #374151; --line2: #4b5563;
+  --fg: #f3f4f6; --soft: #d1d5db; --muted: #9ca3af;
+  --accent: #22d3ee; --accent-hi: #67e8f9; --btn: #0e7490; --btn-hi: #155e75; --accent-soft: #164e63;
+  --warn: #fbbf24; --warn-bg: #78350f; --warn-ink: #fef3c7; --ok: #4ade80; --ok-bg: #14532d; --ok-ink: #dcfce7;
+  --danger: #f87171; --danger-ink: #fca5a5; --info-bg: #1e3a8a; --info-ink: #dbeafe;
+  --club: #0b0b0b; --club-ink: #0b0b0b; --sky: #9cc3e6; --sky-deep: #3b7fbf; --sky-tint: #e6f0fa; --paper: #ffffff; --ink: #111827; --ink-soft: #374151; --ink-muted: #4b5563; --paper-line: #e5e7eb; --paper-tint: #f3f4f6;
+  --wp-side: #1d2327; --wp-bg: #f0f0f1; --wp-blue: #2271b1; --wp-line: #c3c4c7; --wp-ink: #1d2327; --wp-input: #8c8f94;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+.muted { color: var(--muted); } .soft { color: var(--soft); }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* demo bar */
+.demobar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: #0b1220; border-bottom: 1px solid var(--line); }
+.demobar .tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--warn); font-weight: 700; margin-right: 4px; }
+.demobar button { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--soft); cursor: pointer; }
+.demobar button[aria-pressed="true"] { background: var(--card); color: #fff; border-color: var(--accent); }
+.demobar .spacer { flex: 1; }
+
+/* shell */
+.shell { display: flex; flex-wrap: wrap; align-content: flex-start; min-height: calc(100vh - 51px); }
+.side { flex: 0 0 232px; background: var(--surface); border-right: 1px solid var(--line); padding: 20px 12px; display: flex; flex-direction: column; gap: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+.badge-club { width: 36px; height: 36px; border-radius: 50%; background: var(--club); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex: none; }
+.navlist { display: flex; flex-direction: column; gap: 2px; }
+.navbtn { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: var(--soft); cursor: pointer; text-align: left; }
+.navbtn:hover { background: #1a2333; }
+.navbtn[aria-current="page"] { background: var(--card); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
+.pill { background: var(--btn); color: #fff; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 1px 8px; }
+.main { flex: 999 1 560px; min-width: 0; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 18px; }
+@media (min-width: 900px) { .main { padding-left: 32px; padding-right: 32px; } }
+.menutoggle { display: none; }
+@media (max-width: 860px) {
+  .side { flex: 1 1 100%; flex-direction: column; align-items: stretch; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); gap: 8px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .brand { justify-content: space-between; padding: 0; }
+  .brand span.brand-sub { display: none; }
+  .menutoggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  .navlist { display: none; }
+  .navlist.open { display: flex; flex-direction: column; }
+}
+@media (max-width: 640px) {
+  .demobar { flex-wrap: nowrap; overflow-x: auto; }
+  .demobar .spacer { display: none; }
+  .demobar button, .demobar .chip { white-space: nowrap; flex: none; }
+}
+.topbar { display: flex; flex-direction: column; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topbar h1 { font-size: 22px; }
+.topctrls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.select, .input { background: var(--card); border: 1px solid var(--line); border-radius: 8px; min-height: 40px; padding: 0 10px; color: var(--fg); }
+.input.paper, .select.paper { background: #fff; color: var(--ink); border-color: #9ca3af; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #9333ea); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; color: #fff; }
+.who { display: flex; align-items: center; gap: 8px; background: var(--line); border: 0; border-radius: 8px; padding: 4px 10px 4px 4px; min-height: 44px; color: var(--fg); cursor: pointer; text-align: left; flex: none; }
+.who:hover { background: var(--line2); }
+
+/* blocks */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card.flat { background: var(--surface); }
+.card.hl { border-color: var(--accent); }
+.card.warnbox { background: var(--surface); border-color: #b45309; }
+.card h2 { font-size: 16px; } .card h3 { font-size: 15px; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.kpi { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.eyebrow { font-size: 12px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .06em; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+.chip.accent { background: var(--accent-soft); color: #cffafe; }
+.chip.warn { background: var(--warn-bg); color: var(--warn-ink); font-weight: 600; }
+.chip.ok { background: var(--ok-bg); color: var(--ok-ink); font-weight: 600; }
+.chip.info { background: var(--info-bg); color: var(--info-ink); font-weight: 600; }
+.chip.danger { background: #7f1d1d; color: #fee2e2; font-weight: 600; }
+.btn { min-height: 42px; padding: 0 16px; border-radius: 8px; border: 0; background: var(--btn); color: #fff; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn:hover { background: var(--btn-hi); }
+.btn.ghost { background: var(--surface); border: 1px solid var(--line); color: var(--fg); font-weight: 400; }
+.btn.ghost:hover { background: #1a2333; }
+.btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-weight: 500; }
+.btn.danger { background: transparent; border: 1px solid var(--danger); color: var(--danger-ink); font-weight: 500; }
+.btn.small { min-height: 34px; padding: 0 12px; font-size: 13px; }
+.btn:disabled { background: var(--line); color: var(--muted); cursor: not-allowed; border: 0; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.locknote { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; color: var(--soft); font-size: 13px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 4px; width: fit-content; max-width: 100%; }
+.tab { min-height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: var(--soft); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.tab[aria-selected="true"] { background: var(--line); color: #fff; font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 9px 8px; text-align: left; vertical-align: top; }
+thead th { color: var(--muted); font-weight: 500; font-size: 13px; }
+tbody tr { border-top: 1px solid var(--line); }
+tbody tr.click { cursor: pointer; } tbody tr.click:hover { background: #1a2333; }
+tbody tr.sel { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+.listrow { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+.listrow:first-child { border-top: 0; }
+details summary { cursor: pointer; }
+.bar { height: 10px; background: var(--surface); border-radius: 999px; overflow: hidden; } .bar > div { height: 100%; background: var(--accent); }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.steps li { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; color: var(--muted); font-size: 13px; }
+.steps li[aria-current="step"] { background: var(--accent-soft); border-color: var(--accent); color: #fff; font-weight: 600; }
+.rule { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.op { font-size: 12px; font-weight: 700; color: var(--accent-hi); }
+
+/* typeahead */
+.ta { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ta .lbl { font-size: 12px; color: var(--muted); }
+.ta-list { position: absolute; z-index: 30; top: 100%; left: 0; right: 0; margin: 4px 0 0; padding: 4px; list-style: none; background: var(--card); border: 1px solid var(--line2); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); max-height: 280px; overflow-y: auto; }
+.ta-opt { padding: 9px 10px; border-radius: 6px; cursor: pointer; }
+.ta-opt.hi { background: var(--accent-soft); color: #fff; }
+.ta-empty { padding: 9px 10px; color: var(--muted); }
+
+/* board */
+.board { display: grid; grid-template-columns: repeat(6, minmax(170px, 1fr)); gap: 10px; min-width: 1060px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 240px; }
+.col.over { border-color: var(--accent); background: #0f1d2b; }
+.dcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; cursor: grab; }
+.dcard[draggable="false"] { cursor: default; }
+.dcard select { min-height: 30px; font-size: 12px; }
+
+/* modal + toast */
+.overlay { position: fixed; inset: 0; z-index: 50; background: rgba(3,7,18,.72); display: flex; align-items: flex-start; justify-content: center; padding: max(48px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.dialog { width: 100%; max-width: 560px; background: var(--card); border: 1px solid var(--accent); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+.dialog.danger { border-color: var(--danger); }
+.toasts { position: fixed; z-index: 60; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; max-width: min(420px, calc(100vw - 32px)); }
+.toast { background: #0b1220; border: 1px solid var(--line2); border-radius: 10px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+
+/* supporter-facing (light) */
+.paperwrap { display: flex; justify-content: center; padding-block: 24px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.phone { width: 390px; max-width: 100%; background: var(--paper); color: var(--ink); border-radius: 28px; border: 10px solid #1f2937; overflow: hidden; min-height: 760px; display: flex; flex-direction: column; }
+.paper { background: var(--paper); color: var(--ink); }
+.paper a, .paper .linkbtn { color: var(--club); }
+.clubhead { background: var(--club); color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.clubhead .badge-club { background: #111827; }
+.ptabs { display: flex; border-bottom: 1px solid var(--paper-line); }
+.ptab { flex: 1; min-height: 46px; border: 0; background: none; color: var(--ink-soft); cursor: pointer; }
+.ptab[aria-selected="true"] { color: var(--club); font-weight: 700; box-shadow: inset 0 -3px 0 var(--club); }
+.pbody { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.pbtn { min-height: 48px; border-radius: 10px; border: 0; background: var(--club); color: #fff; font-weight: 600; font-size: 16px; cursor: pointer; padding: 0 16px; }
+.pbtn.line { background: #fff; border: 1px solid var(--club); color: var(--club); }
+.pbtn.red { background: #fff; border: 1px solid #b91c1c; color: #b91c1c; }
+.pbtn.plain { background: #fff; border: 1px solid var(--ink-soft); color: var(--ink); font-weight: 400; }
+.pfield { border: 1px solid var(--paper-line); border-radius: 12px; margin: 0; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; }
+.pfield legend { font-weight: 700; padding: 0 4px; }
+.swrow { display: flex; align-items: center; justify-content: space-between; min-height: 40px; font-size: 15px; }
+.swrow input { width: 22px; height: 22px; accent-color: var(--club); }
+.mail { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 12px; }
+.mailhead { font-size: 13px; color: var(--soft); display: flex; flex-direction: column; gap: 2px; }
+.mailbody { background: var(--paper); color: var(--ink); border-radius: 10px; overflow: hidden; }
+.mailitem { border: 1px solid var(--paper-line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.emailprev { background: #e5e7eb; border-radius: 12px; padding: 20px; display: flex; justify-content: center; }
+.emailprev .paper { width: 100%; max-width: 560px; border-radius: 8px; overflow: hidden; }
+.emailprev.mobile .paper { max-width: 360px; }
+
+/* club website: Touchline "Vardy"-style layout in Ravensmere's crest colours (sky blue, black, white) */
+.sitewrap { padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.site { max-width: 1180px; margin: 0 auto; background: #fff; color: #111; border-radius: 10px; overflow: hidden; font-family: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: light; }
+.site a, .site .linkbtn { color: #111; }
+.site h1, .site h2, .site h3, .site .cond { font-family: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif; text-transform: uppercase; letter-spacing: .01em; }
+.utilbar { background: #0b0b0b; color: #fff; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; padding: 4px 16px; }
+.utilbar button { background: none; border: 0; color: #fff; cursor: pointer; min-height: 30px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.sitehead2 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 20px; border-bottom: 1px solid #e5e7eb; background: #fff; }
+.sitehead2 nav { flex: 1 1 420px; display: flex; flex-wrap: wrap; gap: 0 2px; }
+.sitehead2 nav button { background: none; border: 0; border-bottom: 3px solid transparent; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; font-size: 17px; text-transform: uppercase; color: #111; min-height: 44px; padding: 0 10px; cursor: pointer; }
+.sitehead2 nav button[aria-current="page"] { border-bottom-color: var(--sky-deep); }
+.mainsponsor { border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 12px; background: #fff; cursor: pointer; color: #111; text-align: left; min-height: 44px; }
+.mainsponsor small { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #4b5563; }
+.mainsponsor strong { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-size: 17px; text-transform: uppercase; }
+.pushbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; background: var(--sky-tint); border-bottom: 1px solid #d1d5db; padding: 10px 20px; }
+.herogrid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 18px; padding: 20px; }
+@media (max-width: 860px) { .herogrid { grid-template-columns: 1fr; } }
+.feature { position: relative; border-radius: 8px; overflow: hidden; background: #0b0b0b; min-height: 320px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; }
+.feature .photo { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, #1f2937 0 16px, #111827 16px 32px); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 13px; }
+.feature .cap { position: relative; padding: 18px 20px; background: rgba(0,0,0,.78); display: flex; flex-direction: column; gap: 6px; }
+.feature .cap h1 { font-size: 34px; line-height: 1.05; font-weight: 800; }
+.kicker { display: inline-block; background: var(--sky); color: #0b0b0b; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 800; text-transform: uppercase; font-size: 14px; padding: 2px 8px; border-radius: 3px; width: fit-content; }
+.matchcol { display: flex; flex-direction: column; gap: 14px; }
+.matchcard { border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; background: #fff; }
+.matchcard .mh { display: flex; justify-content: space-between; gap: 8px; background: var(--sky); color: #0b0b0b; padding: 7px 12px; font-weight: 700; font-size: 13px; }
+.teamrow { display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 800; font-size: 19px; text-transform: uppercase; }
+.teamrow .score { margin-left: auto; font-size: 22px; }
+.oppcrest { width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #374151; flex: none; }
+.mmeta { padding: 2px 12px; font-size: 13px; color: #374151; }
+.mbtns { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px 12px; }
+.sbtn { background: #0b0b0b; color: #fff; border: 0; border-radius: 6px; min-height: 40px; padding: 0 14px; font-weight: 700; cursor: pointer; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; font-size: 15px; letter-spacing: .02em; }
+.sbtn.light { background: var(--sky-tint); color: #0b0b0b; }
+.sbtn:disabled { opacity: .45; cursor: not-allowed; }
+.secthead { padding: 8px 20px 0; }
+.secthead h2 { font-size: 32px; font-weight: 800; }
+.secthead h2::after { content: ""; display: block; width: 44px; height: 4px; background: var(--sky-deep); margin-top: 4px; }
+.newsgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 14px 20px 22px; }
+.newscard { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.08); background: #fff; display: flex; flex-direction: column; }
+.newscard .thumb { height: 130px; background: repeating-linear-gradient(135deg, #dbe8f5 0 14px, #cfe0f1 14px 28px); display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 12px; }
+.newscard .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.newscard h3 { font-size: 19px; font-weight: 800; line-height: 1.1; }
+.newscard .meta { font-size: 12px; color: #4b5563; }
+.partners { padding: 12px 20px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.sponsortile { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; min-height: 64px; font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 800; font-size: 17px; text-transform: uppercase; color: #111; cursor: pointer; }
+.sponsortile:hover { border-color: #0b0b0b; }
+.newsband { background: var(--sky); color: #0b0b0b; padding: 24px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.newsband h2 { font-size: 30px; font-weight: 800; }
+.newsband input[type="text"], .newsband input[type="email"] { background: #fff; color: #111; border: 1px solid #0b0b0b; border-radius: 6px; min-height: 42px; padding: 0 10px; width: 100%; }
+.sitefoot2 { background: #0b0b0b; color: #fff; padding: 22px 20px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+.sitefoot2 button { background: none; border: 0; color: #fff; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; min-height: 32px; }
+.embedframe { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; max-width: 480px; }
+.crest { border-radius: 50%; background: #fff; object-fit: contain; flex: none; }
+
+/* WordPress admin */
+.wp { display: grid; grid-template-columns: 180px minmax(0, 1fr); grid-template-rows: auto 1fr; min-height: calc(100vh - 51px); background: var(--wp-bg); color: var(--wp-ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color-scheme: light; }
+.wp a, .wp .linkbtn { color: var(--wp-blue); }
+.wpside { flex: 0 0 180px; background: var(--wp-side); color: #f0f0f1; padding: 10px 0; display: flex; flex-direction: column; }
+.wpside span, .wpside button { padding: 9px 14px; font-size: 13px; }
+.wpside button { background: none; border: 0; color: #f0f0f1; text-align: left; cursor: pointer; }
+.wpside button:hover { color: #72aee6; }
+.wptop { grid-column: 1 / -1; align-items: center; flex-wrap: wrap; background: var(--wp-side); color: #f0f0f1; display: flex; justify-content: space-between; gap: 10px; padding: 6px 14px; font-size: 13px; border-bottom: 1px solid #2c3338; }
+.wpside .on { background: var(--wp-blue); color: #fff; font-weight: 600; }
+.wpmain { flex: 999 1 560px; min-width: 0; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 860px) { .wp { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; } .wpside { flex-direction: row; overflow-x: auto; } .wpside span, .wpside button { white-space: nowrap; } }
+.wptop select { background: #2c3338; color: #f0f0f1; border: 1px solid #50575e; border-radius: 3px; min-height: 30px; padding: 0 6px; }
+.wpbox { background: #fff; border: 1px solid var(--wp-line); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.wptabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--wp-line); }
+.wptab { border: 1px solid var(--wp-line); border-bottom: 0; background: #dcdcde; color: var(--wp-ink); min-height: 36px; padding: 0 12px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.wptab[aria-selected="true"] { background: #fff; margin-bottom: -1px; }
+.wpbtn { background: var(--wp-blue); color: #fff; border: 1px solid var(--wp-blue); border-radius: 3px; min-height: 34px; padding: 0 12px; cursor: pointer; font-size: 13px; }
+.wpbtn.sec { background: #f6f7f7; color: var(--wp-blue); }
+.wpbtn:disabled { opacity: .5; cursor: not-allowed; }
+.wpinput { border: 1px solid var(--wp-input); border-radius: 4px; min-height: 34px; padding: 0 8px; background: #fff; color: var(--wp-ink); }
+textarea.wpinput { padding: 8px; min-height: 64px; width: 100%; }
+.wp table thead th { color: #50575e; }
+.wp tbody tr { border-top: 1px solid #dcdcde; }
+.wpnote { background: #fff; border-left: 4px solid var(--wp-blue); padding: 10px 12px; font-size: 13px; }
+.wpnote.ok { border-left-color: #00a32a; } .wpnote.warn { border-left-color: #dba617; }
+.wp code { background: #f0f0f1; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+
+/* tasks drawer */
+.golden summary { color: var(--accent); font-size: 13px; }
+.golden code { font-size: 12px; color: var(--accent-hi); }
+.drawer { position: fixed; z-index: 55; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); background: var(--surface); border-left: 1px solid var(--line2); padding: 20px max(16px, env(safe-area-inset-right, 0px)) 20px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; box-shadow: -20px 0 40px rgba(0,0,0,.4); }
+.task { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+@media (prefers-reduced-motion: no-preference) { .toast { animation: rise .2s ease-out; } @keyframes rise { from { transform: translateY(8px); opacity: .4; } to { transform: none; opacity: 1; } } }
+</style>
+
+<div id="root"><p style="padding:24px;color:#9ca3af">Loading the Ravensmere Town FC prototype…</p></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const { useState, useEffect, useRef } = React;
+const html = htm.bind(React.createElement);
+
+const CREST = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48Y2lyY2xlIGN4PSc1MCcgY3k9JzUwJyByPSc0OScgZmlsbD0nIzBiMGIwYicvPjxjaXJjbGUgY3g9JzUwJyBjeT0nNTAnIHI9JzQyJyBmaWxsPScjZmZmZmZmJy8+PGNpcmNsZSBjeD0nNTAnIGN5PSc1MCcgcj0nMzYnIGZpbGw9JyM5Y2MzZTYnLz48cGF0aCBkPSdNMTggNTAgQzMyIDM2IDQwIDQwIDUwIDI4IEM2MCA0MCA2OCAzNiA4MiA1MCBDNjggNDYgNjAgNDkgNTAgNjIgQzQwIDQ5IDMyIDQ2IDE4IDUwIFonIGZpbGw9JyMwYjBiMGInLz48dGV4dCB4PSc1MCcgeT0nODAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtZmFtaWx5PSdBcmlhbCwgc2Fucy1zZXJpZicgZm9udC13ZWlnaHQ9JzcwMCcgZm9udC1zaXplPScxMicgZmlsbD0nIzBiMGIwYic+UlRGQzwvdGV4dD48L3N2Zz4=';
+function Crest({ size }) { return html`<img src=${CREST} alt="Ravensmere Town FC badge" width=${size} height=${size} className="crest" />`; }
+
+const EDITION = 'preview';
+
+/* ---------- reference data ---------- */
+const PURPOSES = [['news','Club news'],['tickets','Ticket offers'],['sponsor','Sponsor offers'],['fundraising','Fundraising'],['surveys','Surveys']];
+const PURPOSE_PORTAL = { news: 'Club news', tickets: 'Matchday and ticket offers', sponsor: 'Offers from our sponsors', fundraising: 'Fundraising', surveys: 'Surveys' };
+const CHANNELS = [['email','Email'],['push','Push'],['wa','WhatsApp'],['text','Text']];
+const CH_PORTAL = { email: 'Email', push: 'Browser notifications', wa: 'WhatsApp', text: 'Text message' };
+const USERS = {
+  sam: { name: 'Sam Patel', label: 'Club owner', initials: 'SP', role: 'owner' },
+  jo: { name: 'Jo Whitfield', label: 'Commercial staff', initials: 'JW', role: 'commercial' },
+  chris: { name: 'Chris Oduya', label: 'Club staff', initials: 'CO', role: 'staff' },
+  touchline: { name: 'Touchline', label: 'Partner admin', initials: 'TL', role: 'partner' }
+};
+const GRANTS = [['send','Send campaigns to supporters'],['export','Export people'],['identity','Merge records (Identity)'],['values','See commercial values'],['integrations','Connect sources and uploads'],['rights','Handle data rights']];
+const RISKY = ['send','export','identity','rights'];
+const STAGES = [['prospect','Prospect'],['contacted','Contacted'],['proposal','Proposal'],['negotiation','Negotiation'],['won','Won'],['lost','Lost']];
+const RULES = [
+  { id: 'st', group: 'Behaviour', label: 'Bought a season ticket in', params: ['2024/25','2025/26'] },
+  { id: 'att', group: 'Behaviour', label: 'Attended at least', params: ['1 home game','5 home games','10 home games'] },
+  { id: 'shop', group: 'Behaviour', label: 'Bought from the club shop in the last', params: ['3 months','12 months'] },
+  { id: 'open', group: 'Behaviour', label: 'Opened an email in the last', params: ['30 days','90 days'] },
+  { id: 'age', group: 'Demographics', label: 'Age band is', params: ['18–24','25–44','45–64','65+'] },
+  { id: 'pc', group: 'Demographics', label: 'Postcode area is', params: ['CR4','CR5','TN33'] },
+  { id: 'type', group: 'Demographics', label: 'Contact type is', params: ['Supporter','Season-ticket holder','Sponsor contact','Volunteer'] },
+  { id: 'ltv', group: 'Value', label: 'Lifetime value over', params: ['£100','£250','£500'] }
+];
+const fmt = (n) => '£' + Math.round(n).toLocaleString('en-GB');
+const clock = () => { const d = new Date(); return 'Mon 27 Oct ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
+
+function cons(spec, src) {
+  const c = {}; PURPOSES.forEach(([p]) => { c[p] = {}; CHANNELS.forEach(([ch]) => { c[p][ch] = { on: false, src: 'No consent recorded', date: '' }; }); });
+  spec.split(',').filter(Boolean).forEach((pc) => { const [p, ch] = pc.split(':'); c[p][ch] = { on: true, src: src, date: '12 Jul 2025' }; });
+  return c;
+}
+function person(id, name, o) {
+  return Object.assign({ id, name, types: ['Supporter'], age: 'adult', ageNote: 'Adult product purchase', email: '', phone: '', postcode: '', value: { tickets: 0, shop: 0, matchday: 0, mixlr: 0 }, season: 0, games: '', lastSeen: '', st: false, consents: cons('', ''), sources: [], relations: [], activity: [], status: 'active' }, o);
+}
+
+function initialState() {
+  const people = [
+    person('dan', 'Dan Mercer', { types: ['Supporter','Season-ticket holder'], ageNote: 'Adult season ticket · staff confirmed', email: 'dan.mercer@example.com', phone: '07700 900123', postcode: 'CR4 7XX', value: { tickets: 780, shop: 142, matchday: 84, mixlr: 30 }, season: 412, games: '19 of 21 home games', lastSeen: '25 Oct', st: true, consents: cons('news:email,tickets:email,tickets:wa,fundraising:email,surveys:email', 'TicketCo checkout'), sources: ['TicketCo customer','Shopify customer','Mixlr subscriber'], activity: [
+      ['Sat 25 Oct','TicketCo','Scanned in: v Marden Athletic (season ticket)'],['Thu 23 Oct','Email','Opened "Matchday: Ravensmere v Marden Athletic"'],['Tue 14 Oct','TicketCo','Scanned in: v Hollin Bridge (County Cup)'],['Sat 4 Oct','Shopify','Bought home shirt with name printing, £58'],['Sat 27 Sep','Mixlr','Listened to away commentary, 74 min']] }),
+    person('karen', 'Karen Hale', { types: ['Supporter','Parent or guardian'], email: 'hale.family@example.com', phone: '07700 900456', postcode: 'CR4 2AB', value: { tickets: 264, shop: 96, matchday: 40, mixlr: 0 }, season: 188, games: '9 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email,tickets:email,tickets:wa,fundraising:email,sponsor:text', 'Supporter portal'), sources: ['TicketCo customer','Shopify customer'], relations: [['Parent of','josh']], activity: [['Sat 25 Oct','TicketCo','Scanned in with Josh: v Marden Athletic'],['Tue 2 Sep','TicketCo','Bought a junior season ticket for Josh']] }),
+    person('josh', 'Josh Hale', { age: 'minor', ageNote: 'Junior season ticket · linked as a child · birth year 2011', email: 'hale.family@example.com', postcode: 'CR4 2AB', value: { tickets: 120, shop: 0, matchday: 0, mixlr: 0 }, season: 60, games: '9 of 21 home games', lastSeen: '25 Oct', st: true, types: ['Supporter','Season-ticket holder'], consents: cons('news:email', 'Given by Karen Hale (parent)'), sources: ['TicketCo customer (junior ticket)'], relations: [['Child of','karen']], activity: [['Sat 25 Oct','TicketCo','Scanned in: v Marden Athletic (junior season ticket)']] }),
+    person('priya', 'Priya Nair', { types: ['Supporter','Sponsor contact'], org: 'nair', email: 'priya.nair@example.com', phone: '07700 900321', postcode: 'TN33 0AA', value: { tickets: 210, shop: 60, matchday: 40, mixlr: 0 }, season: 95, games: '6 of 21 home games', lastSeen: '4 Oct', consents: cons('news:email', 'Club website form'), sources: ['TicketCo customer (personal email)','CRM sponsor contact (work email)'], activity: [['Sat 4 Oct','Hospitality','Nair & Co guests: v Ashdown Vale']] }),
+    person('tom', 'Tom Breward', { email: 'tom.b@example.com', phone: '07700 900654', postcode: 'CR5 1DE', value: { tickets: 340, shop: 22, matchday: 30, mixlr: 0 }, season: 12, games: '1 of 21 home games', lastSeen: '27 Sep', consents: cons('tickets:wa', 'WhatsApp opt-in'), sources: ['TicketCo customer','Shopify customer','Mailchimp subscriber'], activity: [['Sat 27 Sep','TicketCo','Scanned in: v Lewes Road'],['Mon 1 Sep','Mailchimp','Unsubscribed from club emails']] }),
+    person('ellie', 'Ellie Graves', { age: 'unknown', ageNote: 'No age signal yet', email: 'ellie.g@example.com', postcode: 'CR4 9ZZ', lastSeen: '2 Oct', consents: cons('news:email', 'Club website newsletter form'), sources: ['WordPress newsletter sign-up'], activity: [['Thu 2 Oct','Website','Signed up to the newsletter']] }),
+    person('sarah', 'Sarah Cole', { email: 'sarah.cole@example.com', postcode: 'CR4 3CC', value: { tickets: 410, shop: 35, matchday: 60, mixlr: 0 }, season: 0, games: '0 of 21 home games', lastSeen: '3 May', consents: cons('news:email,tickets:email', 'TicketCo checkout'), sources: ['TicketCo customer'], activity: [['Sat 3 May','TicketCo','Scanned in: last home game of 2024/25 (season ticket)']] }),
+    person('mark', 'Mark Ellison', { email: 'mark.e@example.com', phone: '07700 900777', postcode: 'CR5 4MM', value: { tickets: 395, shop: 0, matchday: 22, mixlr: 0 }, games: '0 of 21 home games', lastSeen: '3 May', consents: cons('tickets:email', 'TicketCo checkout'), sources: ['TicketCo customer'] }),
+    person('jamie', 'Jamie Turner', { email: 'jamie.t@example.com', postcode: 'CR4 8JT', value: { tickets: 380, shop: 48, matchday: 15, mixlr: 0 }, games: '2 of 21 home games', lastSeen: '14 Oct', consents: cons('news:email,tickets:email', 'TicketCo checkout'), sources: ['TicketCo customer'] }),
+    person('nadia', 'Nadia Okafor', { email: 'nadia.o@example.com', postcode: 'CR4 5NO', value: { tickets: 402, shop: 12, matchday: 31, mixlr: 0 }, games: '0 of 21 home games', lastSeen: '26 Apr', consents: cons('tickets:email,surveys:email', 'TicketCo checkout'), sources: ['TicketCo customer'] }),
+    person('owen', 'Owen Price', { types: ['Supporter','Season-ticket holder'], st: true, email: 'owen.p@example.com', value: { tickets: 410, shop: 88, matchday: 120, mixlr: 0 }, season: 410, games: '20 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email,tickets:email', 'TicketCo checkout'), sources: ['TicketCo customer','Shopify customer'] }),
+    person('grace', 'Grace Liu', { email: 'grace.l@example.com', value: { tickets: 96, shop: 40, matchday: 18, mixlr: 0 }, games: '4 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email', 'Club website form'), sources: ['TicketCo customer'] }),
+    person('ben', 'Ben Carter', { types: ['Supporter','Volunteer'], email: 'ben.c@example.com', value: { tickets: 0, shop: 25, matchday: 60, mixlr: 0 }, games: '21 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email,news:wa', 'Volunteer sign-up'), sources: ['Volunteer rota upload'] }),
+    person('hannah', 'Hannah Moss', { types: ['Supporter','Season-ticket holder'], st: true, email: 'hannah.m@example.com', value: { tickets: 410, shop: 140, matchday: 75, mixlr: 30 }, season: 470, games: '18 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email,tickets:email,sponsor:email', 'TicketCo checkout'), sources: ['TicketCo customer','Shopify customer','Mixlr subscriber'] }),
+    person('ravi', 'Ravi Desai', { email: 'ravi.d@example.com', value: { tickets: 60, shop: 0, matchday: 12, mixlr: 0 }, games: '2 of 21 home games', lastSeen: '4 Oct', consents: cons('', ''), sources: ['TicketCo customer'] }),
+    person('lucy', 'Lucy Brennan', { email: 'lucy.b@example.com', value: { tickets: 180, shop: 95, matchday: 44, mixlr: 0 }, games: '7 of 21 home games', lastSeen: '25 Oct', consents: cons('news:email,fundraising:email', 'Club website form'), sources: ['TicketCo customer','Shopify customer'] })
+  ];
+  return {
+    people,
+    suggestions: [
+      { id: 's1', a: 'dan', title: 'Dan Mercer ↔ Daniel Mercer', otherName: 'Daniel Mercer', otherEmail: 'd.mercer@work.example.com', otherSrc: 'Shopify · 2 orders', conf: 92, why: 'In an upcoming segment · recent spend', evidence: 'Same mobile number (verified at TicketCo checkout) · same postcode · similar name', links: 1, status: 'open' },
+      { id: 's2', a: 'sarah', title: 'Sarah Cole ↔ S. Cole', otherName: 'S. Cole', otherEmail: 's.cole@example.com', otherSrc: 'Shopify · 1 order', conf: 88, why: 'Season-ticket holder last season', evidence: 'Same postcode · similar email · similar name', links: 1, status: 'open' },
+      { id: 's3', a: 'mark', title: 'Mark Ellison ↔ Mark Ellison', otherName: 'Mark Ellison', otherEmail: 'm.ellison@example.com', otherSrc: 'Mixlr', conf: 81, why: 'Same name and postcode', evidence: 'Same name · same postcode', links: 1, status: 'open' },
+      { id: 's4', a: 'jamie', title: 'Raffle: J. Turner ↔ Jamie Turner', otherName: 'J. Turner', otherEmail: 'jturner@example.com', otherSrc: 'Volunteer rota', conf: 74, why: 'Recent activity', evidence: 'Similar name · same postcode', links: 1, status: 'open' },
+      { id: 's5', a: 'ravi', title: 'Ravi Desai ↔ R. Desai', otherName: 'R. Desai', otherEmail: 'r.desai@example.com', otherSrc: 'WordPress form', conf: 69, why: 'No recent activity · can wait', evidence: 'Similar name · similar email', links: 1, status: 'open' },
+      { id: 's6', a: 'lucy', title: 'Lucy Brennan ↔ L. Brennan', otherName: 'L. Brennan', otherEmail: 'lbrennan@example.com', otherSrc: 'Shopify', conf: 66, why: 'No recent activity · can wait', evidence: 'Similar name', links: 1, status: 'open' }
+    ],
+    extraSuggestions: 31,
+    orgs: {
+      nair: { name: 'Nair & Co Accountants', status: 'Sponsor', sector: 'Accountancy', contact: 'Priya Nair (Director)' },
+      coop: { name: 'Ravensmere Co-op', status: 'Sponsor', sector: 'Retail', contact: 'Alan Reed' },
+      weald: { name: 'Weald Motors', status: 'Sponsor', sector: 'Motor trade', contact: 'Gemma Weald' },
+      lambert: { name: 'Lambert Fencing', status: 'Sponsor', sector: 'Trades', contact: 'Rob Lambert' },
+      plough: { name: 'The Plough Inn', status: 'Sponsor', sector: 'Hospitality', contact: 'Dee Marsh' },
+      dental: { name: 'Ravensmere Dental', status: 'Sponsor', sector: 'Health', contact: 'Dr Kim Osei' },
+      ashby: { name: 'Ashby Builders', status: 'Prospect', sector: 'Construction', contact: 'Mike Ashby' },
+      bright: { name: 'Brightwave Broadband', status: 'Prospect', sector: 'Telecoms', contact: 'Sian Hughes' },
+      hollin: { name: 'Hollin Fencing', status: 'Prospect', sector: 'Trades', contact: 'No contact yet' }
+    },
+    deals: [
+      { id: 'd-hollin', org: 'hollin', what: 'Programme page', value: 300, prob: 20, stage: 'prospect', owner: 'Jo', close: '31 Jan', history: [] },
+      { id: 'd-ashby', org: 'ashby', what: '2 perimeter boards, 3 programme pages', value: 2500, prob: 60, stage: 'proposal', owner: 'Jo', close: '30 Nov', items: [['perimeter',2],['programme',3]], history: [], task: { text: 'Send revised proposal', due: 'Fri 31 Oct', owner: 'Jo', done: false }, log: [['Call','17 Oct','Spoke to Mike Ashby. Keen on boards facing the main stand.'],['Meeting','9 Oct','Ground visit and hospitality lunch.']] },
+      { id: 'd-bright', org: 'bright', what: 'Stand naming', value: 3000, prob: 40, stage: 'negotiation', owner: 'Sam', close: '15 Dec', history: [] },
+      { id: 'd-nair', org: 'nair', what: 'Main shirt sponsor (with 6 hospitality places)', value: 6000, prob: 100, stage: 'won', owner: 'Sam', close: '2025/26', history: [] },
+      { id: 'd-coop', org: 'coop', what: '3 perimeter boards, programme page', value: 2880, prob: 100, stage: 'won', owner: 'Jo', close: '2025/26', history: [] },
+      { id: 'd-weald', org: 'weald', what: '2 perimeter boards, match ball', value: 1920, prob: 100, stage: 'won', owner: 'Jo', close: '2025/26', history: [] },
+      { id: 'd-lambert', org: 'lambert', what: 'Shirt sleeve', value: 1500, prob: 100, stage: 'won', owner: 'Jo', close: '2025/26', history: [] },
+      { id: 'd-plough', org: 'plough', what: 'Programme back page, 6 hospitality places', value: 690, prob: 100, stage: 'won', owner: 'Jo', close: '2025/26', history: [] },
+      { id: 'd-dental', org: 'dental', what: 'Player sponsorship × 3', value: 450, prob: 100, stage: 'won', owner: 'Jo', close: '2025/26', history: [] }
+    ],
+    inventory: [
+      { id: 'main', name: 'Main shirt sponsor', cat: 'Kit', units: 1, sold: 1, unitLabel: 'per season', rate: 6000 },
+      { id: 'sleeve', name: 'Shirt sleeve', cat: 'Kit', units: 1, sold: 1, unitLabel: 'per season', rate: 1500 },
+      { id: 'perimeter', name: 'Perimeter board', cat: 'Ground', units: 24, sold: 5, unitLabel: 'per season', rate: 900 },
+      { id: 'programme', name: 'Programme full page', cat: 'Print', units: 12, sold: 2, unitLabel: 'per season', rate: 300 },
+      { id: 'player', name: 'Player sponsorship', cat: 'Player', units: 22, sold: 3, unitLabel: 'per season', rate: 150 },
+      { id: 'ball', name: 'Match ball sponsor', cat: 'Matchday', units: 21, sold: 1, unitLabel: 'per match', rate: 120 },
+      { id: 'hosp', name: 'Hospitality package', cat: 'Hospitality', units: 210, sold: 12, unitLabel: 'per head', rate: 60 }
+    ],
+    segments: [
+      { id: 'regulars', name: 'Matchday regulars', purpose: 'news', channel: 'email', receive: 612, kind: 'Dynamic' },
+      { id: 'parents', name: 'Parents of junior members', purpose: 'news', channel: 'email', receive: 58, kind: 'Dynamic' },
+      { id: 'hosp', name: 'Hospitality guests this season', purpose: 'tickets', channel: 'email', receive: 41, kind: 'Snapshot' }
+    ],
+    uploadedSource: false,
+    rights: [
+      { id: 'r-tom', person: 'tom', type: 'Erasure', received: '27 Oct', due: '27 Nov', holdUntil: '3 Nov', status: 'hold', reason: '', checklist: [
+        { src: 'TicketCo', how: 'Sent through its API', status: 'Done', manual: false },
+        { src: 'Mailchimp', how: 'Sent through its API', status: 'Done', manual: false },
+        { src: 'Game Changers (Miggle product)', how: 'Erasure event sent', status: 'Confirmed', manual: false },
+        { src: 'Shopify', how: 'No erasure API: manual task', status: 'To do', manual: true },
+        { src: 'Paper raffle list (unconnected tool)', how: 'Manual task', status: 'To do', manual: true },
+        { src: "Ticketing provider's payment records", how: 'Kept for tax: legal exemption recorded', status: 'Exempt', manual: false },
+        { src: 'Sign-in account and email delivery logs', how: 'Automatic at the end of the hold', status: 'Waiting', manual: false } ] },
+      { id: 'r-sarah', person: 'sarah', type: 'Access (copy of data)', received: '20 Oct', due: '20 Nov', status: 'done', checklist: [] }
+    ],
+    grants: { jo: { values: true, send: false, export: false, identity: false, integrations: false, rights: false }, chris: { values: false, send: false, export: false, identity: false, integrations: false, rights: false } },
+    mfa: { sam: false, jo: false, chris: false, touchline: true },
+    reportSent: false,
+    reportsAuto: false,
+    digestOnlyNeeded: false,
+    sends: [],
+    suppressions: [{ addr: 'old.address@example.com', ch: 'Email', why: 'Hard bounce', when: '2 Oct' }],
+    audit: [{ when: 'Mon 27 Oct 08:00', who: 'System', what: 'TicketCo import: 214 rows, 0 problems' }],
+    portalSignedIn: false,
+    childRequests: [],
+    flags: {},
+    web: { impressions: 18400, clicks: 212 },
+    wp: { last: 'Today 07:12', forms: [
+      { id: 'newsletter', name: 'Newsletter sign-up (footer)', feed: true, purpose: 'news', channels: ['email'], wording: 'Send me club news from Ravensmere Town FC by email. You can unsubscribe at any time.', fields: [['Your name','Name'],['Email','Email'],['Postcode','Postcode']] },
+      { id: 'contact', name: 'Contact us', feed: false, purpose: 'enquiry', channels: [], wording: '', fields: [['Name','Name'],['Email','Email'],['Message','Not sent']] },
+      { id: 'volunteer', name: 'Volunteer sign-up', feed: false, purpose: 'news', channels: ['email'], wording: '', fields: [['Full name','Name'],['Email','Email'],['Mobile','Phone'],['Which roles interest you?','Source fact: volunteer roles']] } ] },
+    peopleBase: 1842
+  };
+}
+
+/* ---------- permissions ---------- */
+function makeCan(S, role) {
+  const r = USERS[role].role;
+  const g = S.grants[role] || {};
+  return function (cap) {
+    if (r === 'owner' || r === 'partner') return true;
+    if (cap === 'commercialEdit') return r === 'commercial';
+    if (cap === 'values') return r === 'commercial' ? g.values !== false : !!g.values;
+    if (['send','export','identity','integrations','rights'].includes(cap)) return !!g[cap];
+    return false;
+  };
+}
+function needsMfa(S, role) { const r = USERS[role].role; if (r === 'owner' || r === 'partner') return true; const g = S.grants[role] || {}; return RISKY.some((k) => g[k]); }
+
+/* ---------- small components ---------- */
+function Lock() { return html`<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>`; }
+function Money({ can, n, suffix }) { return can('values') ? html`<span className="num">${fmt(n)}${suffix || ''}</span>` : html`<span className="muted" title="Needs the Commercial values permission"><${Lock}/> hidden</span>`; }
+function LockNote({ children }) { return html`<div className="locknote"><${Lock}/><span>${children}</span></div>`; }
+
+function Typeahead({ id, label, options, value, onPick, placeholder, paper, hideLabel }) {
+  const [q, setQ] = useState(''); const [open, setOpen] = useState(false); const [hi, setHi] = useState(0);
+  const sel = options.find((o) => o.value === value);
+  const list = options.filter((o) => (o.label + ' ' + (o.meta || '')).toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+  const pick = (o) => { onPick(o.value); setQ(''); setOpen(false); };
+  return html`<div className="ta">
+    <label htmlFor=${id} className=${hideLabel ? 'sr' : 'lbl'}>${label}</label>
+    <input id=${id} className=${'input' + (paper ? ' paper' : '')} role="combobox" aria-expanded=${open} aria-controls=${id + '-list'} aria-autocomplete="list" autoComplete="off"
+      value=${open ? q : (sel ? sel.label : '')} placeholder=${placeholder || 'Type to search'}
+      onFocus=${() => { setOpen(true); setQ(''); setHi(0); }} onBlur=${() => setTimeout(() => setOpen(false), 120)}
+      onChange=${(e) => { setQ(e.target.value); setOpen(true); setHi(0); }}
+      onKeyDown=${(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(h + 1, list.length - 1)); } else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => Math.max(h - 1, 0)); } else if (e.key === 'Enter' && list[hi]) { e.preventDefault(); pick(list[hi]); } else if (e.key === 'Escape') { setOpen(false); } }} />
+    ${open && html`<ul id=${id + '-list'} role="listbox" className="ta-list">
+      ${list.length ? list.map((o, i) => html`<li key=${o.value} role="option" aria-selected=${i === hi} className=${'ta-opt' + (i === hi ? ' hi' : '')} onMouseDown=${(e) => { e.preventDefault(); pick(o); }}>${o.label}${o.meta ? html`<span className="muted"> · ${o.meta}</span>` : null}</li>`) : html`<li className="ta-empty">No matches</li>`}
+    </ul>`}
+  </div>`;
+}
+
+function Modal({ title, onClose, danger, children }) {
+  useEffect(() => { const k = (e) => { if (e.key === 'Escape') onClose(); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [onClose]);
+  return html`<div className="overlay" onMouseDown=${(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className=${'dialog' + (danger ? ' danger' : '')} role="dialog" aria-modal="true" aria-label=${title}>
+      <div className="row between"><h2 style=${{ fontSize: '18px' }}>${title}</h2><button className="btn ghost small" onClick=${onClose} aria-label="Close">Close</button></div>
+      ${children}
+    </div>
+  </div>`;
+}
+
+/* ---------- App ---------- */
+const VIEWN = { home: 'Home', supporters: 'Supporters', person: 'Supporter record', segments: 'Segments', messages: 'Messages', matchday: 'Matchday', settings: 'Settings' };
+const DATAN = { overview: 'Overview', suggestions: 'Possible duplicates', uploads: 'Uploads', sources: 'Sources and imports', rights: 'Rights requests', suppression: 'Suppression exports' };
+const SPN = { pipeline: 'Pipeline', orgs: 'Organisations', inventory: 'Inventory', org: 'Organisation', value: 'Value view' };
+function staffLabel(nav) { if (nav.view === 'data') return 'Data · ' + DATAN[nav.tab || 'overview']; if (nav.view === 'sponsors') return 'Sponsors · ' + SPN[nav.tab || 'pipeline']; return VIEWN[nav.view] || nav.view; }
+function screenLabel(app, nav, wpView) {
+  if (app === 'staff') return 'Staff · ' + staffLabel(nav);
+  if (app === 'wp') return wpView === 'crm' ? 'WordPress · Club CRM · ' + staffLabel(nav) : wpView === 'posts' ? 'WordPress · Posts' : 'WordPress · Plugin settings';
+  return { digest: 'Inbox', portal: 'Portal', unsubscribe: 'Unsubscribe page', website: 'Website' }[app];
+}
+
+function App() {
+  const [S, setS] = useState(initialState);
+  const [role, setRoleRaw] = useState('sam');
+  const [app, setApp] = useState('staff');
+  const [nav, setNav] = useState({ view: 'home' });
+  const [toasts, setToasts] = useState([]);
+  const [modal, setModal] = useState(null);
+  const [drawer, setDrawer] = useState(false);
+  const [splash, setSplash] = useState(true);
+  const [timer, setTimer] = useState(null);
+  const [results, setResults] = useState({});
+  const [session, setSession] = useState({ name: '', club: '', role: '' });
+  const [wpView, setWpView] = useState('settings');
+  const [wpUser, setWpUser] = useState('sam');
+  const [trail, setTrail] = useState([]);
+  const timerRef = useRef(null);
+  useEffect(() => { timerRef.current = timer; }, [timer]);
+  const pushTrail = (l) => setTrail((tr) => (tr.length && tr[tr.length - 1] === l ? tr : [...tr, l]));
+  useEffect(() => { if (timer) pushTrail(screenLabel(app, nav, wpView)); }, [app, nav.view, nav.tab, nav.org, nav.id, wpView, timer && timer.id]);
+  const track = (l) => { if (timerRef.current) pushTrail(l); };
+  const tid = useRef(0);
+
+  useEffect(() => { const h = (location.hash || '').slice(1); if (['portal','digest','unsubscribe','website','wp'].includes(h)) setApp(h); if (h === 'tasks' && EDITION === 'facilitator') setDrawer(true); }, []);
+
+  const update = (fn) => setS((prev) => { const n = structuredClone(prev); fn(n); return n; });
+  const toast = (msg, action) => { const id = ++tid.current; setToasts((t) => [...t, { id, msg, action }]); setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), action ? 9000 : 4500); };
+  const audit = (n, what, who) => { n.audit.unshift({ when: clock(), who: who || USERS[role].name, what }); };
+  const go = (v) => { setApp((a) => (a === 'wp' ? 'wp' : 'staff')); setNav(v); window.scrollTo(0, 0); };
+  const setRole = (r) => { setRoleRaw(r); if (nav.view === 'settings' && USERS[r].role === 'staff') setNav({ view: 'home' }); };
+  const can = makeCan(S, role);
+  const P = (id) => S.people.find((p) => p.id === id);
+  const life = (p) => p.value.tickets + p.value.shop + p.value.matchday + p.value.mixlr;
+  const openSugg = S.suggestions.filter((s) => s.status === 'open').length + S.extraSuggestions;
+  const visiblePeople = S.people.filter((p) => p.status === 'active');
+  const ctx = { S, update, toast, audit, go, nav, setNav, role, setRole, can, P, life, openSugg, visiblePeople, setModal, setApp, timer, setTimer, wpView, setWpView, wpUser, setWpUser, results, setResults, session, setSession, trail, setTrail, track, resetAll: () => { setTrail([]); setS(initialState()); setRoleRaw('sam'); setApp('staff'); setNav({ view: 'home' }); setTimer(null); setResults({}); setSession({ name: '', club: '', role: '' }); setWpUser('sam'); setWpView('settings'); toast('Results cleared and demo reset for a new tester.'); } };
+
+  return html`<div>
+    <${DemoBar} ctx=${ctx} app=${app} setApp=${setApp} openTasks=${() => setDrawer(true)} help=${() => setSplash(true)} reset=${() => { setS(initialState()); setRoleRaw('sam'); setApp('staff'); setNav({ view: 'home' }); setTimer(null); toast('Reset to the start.'); }} />
+    ${app === 'staff' && html`<${Staff} ctx=${ctx} />`}
+    ${app === 'portal' && html`<${Portal} ctx=${ctx} />`}
+    ${app === 'digest' && html`<${Digest} ctx=${ctx} />`}
+    ${app === 'unsubscribe' && html`<${Unsubscribe} ctx=${ctx} />`}
+    ${app === 'website' && html`<${Website} ctx=${ctx} />`}
+    ${app === 'wp' && html`<${WpAdmin} ctx=${ctx} />`}
+    ${modal}
+    ${drawer && EDITION === 'facilitator' && html`<${Tasks} ctx=${ctx} close=${() => setDrawer(false)} />`}
+    ${splash && html`<${Splash} close=${() => setSplash(false)} />`}
+    <div className="toasts" aria-live="polite">${toasts.map((t) => html`<div className="toast" key=${t.id}><span>${t.msg}</span>${t.action ? html`<button className="btn small outline" onClick=${() => { t.action.fn(); setToasts((x) => x.filter((y) => y.id !== t.id)); }}>${t.action.label}</button>` : null}</div>`)}</div>
+  </div>`;
+}
+
+function DemoBar({ ctx, app, setApp, openTasks, reset, help }) {
+  const b = (id, label) => html`<button aria-pressed=${app === id} onClick=${() => setApp(id)}>${label}</button>`;
+  return html`<div className="demobar" role="navigation" aria-label="Prototype views">
+    <span className="tag">Prototype</span>
+    ${b('staff', 'Staff app')}${b('digest', 'Inbox: weekly digest')}${b('portal', 'Supporter portal (phone)')}${b('unsubscribe', 'Unsubscribe page')}${b('website', 'Club website')}${b('wp', 'WordPress admin')}
+    <span className="spacer"></span>
+    ${EDITION === 'facilitator' && ctx.timer && html`<span className="chip warn">Task ${ctx.timer.id} running</span>`}
+    <button onClick=${help}>How to use this</button>
+    ${EDITION === 'facilitator' && html`<button onClick=${openTasks}>Tester tasks</button>`}
+    <button onClick=${reset}>${EDITION === 'facilitator' ? 'Reset User Test' : 'Reset Preview'}</button>
+  </div>`;
+}
+
+
+/* ---------- Splash: how to use this edition ---------- */
+function Splash({ close }) {
+  const fac = EDITION === 'facilitator';
+  useEffect(() => { const k = (e) => { if (e.key === 'Escape') close(); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [close]);
+  return html`<div className="overlay"><div className="dialog" role="dialog" aria-modal="true" aria-labelledby="splash-title" style=${{ maxWidth: '660px' }}>
+    <div className="row" style=${{ gap: '12px' }}><${Crest} size=${52} /><div className="stack" style=${{ gap: '2px' }}><h2 id="splash-title" style=${{ fontSize: '22px' }}>${fac ? 'Ravensmere Club CRM: facilitator edition' : 'Welcome to the Ravensmere Town FC CRM preview'}</h2><span className="muted">${fac ? 'For running usability sessions' : 'An early, clickable preview'}</span></div></div>
+    <p className="soft" style=${{ margin: 0 }}>${fac ? 'A clickable prototype of the club CRM for usability testing.' : 'This is an early preview of a CRM for football clubs.'} Ravensmere Town FC is an invented club: every person, organisation and number is made up, and nothing ${fac ? 'is ever sent' : 'you do is sent anywhere'}.</p>
+    ${fac ? html`<div className="stack">
+        <strong>Running a session</strong>
+        <ol style=${{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <li>Open <strong>Tester tasks</strong> (top right) and fill in the tester, club and role.</li>
+          <li>Read a task aloud and press <strong>Start</strong>. The right screen and role are set, and a timer starts.</li>
+          <li>Watch without helping. When they're done, open Tester tasks again and press <strong>Finish</strong>.</li>
+          <li>Record the result, ask how easy it was (1 to 7), add notes, and <strong>Save result</strong>.</li>
+          <li>At the end, <strong>Copy results</strong> and paste them into your notes. <strong>New tester</strong> clears everything for the next person.</li>
+        </ol>
+        <span className="soft">Each task's <strong>Golden path and requirements</strong> shows what success looks like. You can copy them all at the foot of the drawer.</span>
+      </div>`
+    : html`<div className="stack">
+        <strong>Have a click around</strong>
+        <span className="soft">This is an early preview of how the CRM could work for a club like yours. Explore at your own pace, and we'd love your thoughts on what's useful, what's missing and what's confusing.</span>
+      </div>`}
+    <div className="stack">
+      <strong>Getting around</strong>
+      <ul style=${{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <li>The bar at the top switches between the <strong>staff app</strong>, an <strong>inbox</strong>, the <strong>supporter portal</strong> (on a phone), the <strong>club website</strong> and <strong>WordPress admin</strong>.</li>
+        <li>In the staff app, <strong>Viewing as</strong> changes which club member you are. In WordPress admin, <strong>Logged into WordPress as</strong> does the same.</li>
+        <li>You can't break anything. <strong>${fac ? 'Reset User Test' : 'Reset Preview'}</strong> puts everything back to the start, and <strong>How to use this</strong> brings this page back.</li>
+      </ul>
+    </div>
+    <div className="locknote" style=${{ borderColor: '#b45309', color: '#fde68a' }}><${Lock}/><span>${fac ? "Confidential. Don't share this edition: it contains the test plan. For showing the concept, share the preview edition instead." : "Confidential. Please don't share this link, or screenshots of it."}</span></div>
+    <button className="btn" style=${{ alignSelf: 'flex-start' }} onClick=${close}>${fac ? 'Start' : "Let's go"}</button>
+  </div></div>`;
+}
+
+/* ---------- Staff shell ---------- */
+function Staff({ ctx }) {
+  const { nav, role, setRole, S, openSugg, visiblePeople } = ctx;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const go = (v) => { setMenuOpen(false); ctx.go(v); };
+  const items = [['home','Home'],['supporters','Supporters'],['segments','Segments'],['messages','Messages'],['sponsors','Sponsors'],['matchday','Matchday'],['data','Data', openSugg + S.rights.filter((r) => r.status === 'hold').length],['settings','Settings']]
+    .filter(([id]) => !(id === 'settings' && USERS[role].role === 'staff'));
+  const titles = { home: 'Home', supporters: 'Supporters', person: 'Supporters', segments: 'Segments', messages: 'Messages', sponsors: 'Sponsors', matchday: 'Matchday', data: 'Data', settings: 'Settings' };
+  const searchOpts = [...visiblePeople.map((p) => ({ value: 'p:' + p.id, label: p.name, meta: p.email || p.phone })), ...Object.entries(S.orgs).map(([id, o]) => ({ value: 'o:' + id, label: o.name, meta: 'Organisation' }))];
+  const active = nav.view === 'person' ? 'supporters' : nav.view;
+  return html`<div className="shell">
+    <aside className="side" aria-label="Main">
+      <div className="brand"><div className="row" style=${{ gap: '10px', flexWrap: 'nowrap' }}><${Crest} size=${36} /><div className="stack" style=${{ gap: 0 }}><strong>Ravensmere Town FC</strong><span className="muted brand-sub" style=${{ fontSize: '12px' }}>Club CRM</span></div></div>
+        <button className="menutoggle" aria-expanded=${menuOpen} aria-controls="mainnav" onClick=${() => setMenuOpen(!menuOpen)}><span>${menuOpen ? 'Close' : 'Menu'}</span><span className="muted">· ${(items.find(([id]) => id === active) || ['', 'Home'])[1]}</span></button></div>
+      <nav id="mainnav" className=${'navlist' + (menuOpen ? ' open' : '')}>${items.map(([id, label, badge]) => html`<button key=${id} className="navbtn" aria-current=${active === id ? 'page' : undefined} onClick=${() => go({ view: id })}><span>${label}</span>${badge ? html`<span className="pill num">${badge}</span>` : null}</button>`)}</nav>
+    </aside>
+    <main className="main">
+      <header className="topbar">
+        <div className="topline">
+        <h1>${titles[nav.view]}</h1>
+        <button type="button" className="who" aria-label="Account menu" aria-haspopup="menu" onClick=${() => ctx.toast('Account menu: profile, notification settings and sign out (prototype).')}><div className="avatar" aria-hidden="true">${USERS[role].initials}</div><div className="stack" style=${{ gap: 0 }}><strong style=${{ fontSize: '13px' }}>${USERS[role].name}</strong><span className="muted" style=${{ fontSize: '12px' }}>${USERS[role].label}</span></div><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></button>
+        </div>
+        <div className="topctrls">
+          <div style=${{ width: '260px', maxWidth: '100%' }}><${Typeahead} id="gsearch" label="Search people and organisations" hideLabel=${true} options=${searchOpts} value=${null} placeholder="Search name, email or phone" onPick=${(v) => { const [k, id] = v.split(':'); if (k === 'p') go({ view: 'person', id }); else go({ view: 'sponsors', tab: 'org', org: id }); }} /></div>
+          ${role === 'touchline' && html`<label className="field">Club<select className="select" onChange=${(e) => { if (e.target.value !== 'Ravensmere Town FC') ctx.toast('Ashdown Vale and Hollin Bridge have no sample data in this prototype.'); e.target.value = 'Ravensmere Town FC'; }}><option>Ravensmere Town FC</option><option>Ashdown Vale FC</option><option>Hollin Bridge FC</option></select></label>`}
+          <label className="field">Viewing as<select className="select" style=${{ borderColor: 'var(--accent)' }} value=${role} onChange=${(e) => setRole(e.target.value)}>${Object.entries(USERS).map(([id, u]) => html`<option key=${id} value=${id}>${u.name} · ${u.label}</option>`)}</select></label>
+        </div>
+      </header>
+      ${nav.view === 'home' && html`<${Home} ctx=${ctx} />`}
+      ${nav.view === 'supporters' && html`<${Supporters} ctx=${ctx} />`}
+      ${nav.view === 'person' && html`<${Person} ctx=${ctx} id=${nav.id} />`}
+      ${nav.view === 'segments' && html`<${Segments} ctx=${ctx} />`}
+      ${nav.view === 'messages' && html`<${Messages} ctx=${ctx} />`}
+      ${nav.view === 'sponsors' && html`<${Sponsors} ctx=${ctx} />`}
+      ${nav.view === 'matchday' && html`<${Matchday} ctx=${ctx} />`}
+      ${nav.view === 'data' && html`<${Data} ctx=${ctx} />`}
+      ${nav.view === 'settings' && html`<${Settings} ctx=${ctx} />`}
+    </main>
+  </div>`;
+}
+
+/* ---------- digest items (shared by Home and Digest) ---------- */
+function digestItems(ctx, who) {
+  const { S } = ctx; const items = [];
+  const tom = S.rights.find((r) => r.id === 'r-tom');
+  const todo = tom && tom.status !== 'cancelled' ? tom.checklist.filter((c) => c.manual && c.status === 'To do').length : 0;
+  const ashby = S.deals.find((d) => d.id === 'd-ashby');
+  if (who === 'sam' || who === 'touchline') {
+    if (!S.reportSent && !S.reportsAuto) items.push({ title: "Nair & Co's monthly sponsor report is ready", detail: 'Exposure, website clicks and email opens. Approve it and it goes to Priya Nair.', cta: 'Review and send', to: { view: 'sponsors', tab: 'value', org: 'nair' } });
+    if (ashby && ashby.task && !ashby.task.done && ashby.stage !== 'won' && ashby.stage !== 'lost') items.push({ title: 'Ashby Builders: revised proposal due Friday', detail: "Jo's task, for information.", cta: 'Open', to: { view: 'sponsors', tab: 'org', org: 'ashby' } });
+    if (todo) items.push({ title: "Tom Breward's erasure: " + todo + ' manual task' + (todo > 1 ? 's' : '') + ' left', detail: 'Tick them off before 27 November.', cta: 'Open', to: { view: 'data', tab: 'rights', id: 'r-tom' } });
+    S.rights.filter((r) => r.person === 'karen' && r.status === 'hold').forEach(() => items.push({ title: 'New erasure request: Karen Hale', detail: 'On hold until 3 November. Nothing for you to do unless it was made in error.', cta: 'Open', to: { view: 'data', tab: 'rights', id: 'r-karen' } }));
+    S.childRequests.filter((c) => c.status === 'pending').forEach((c) => items.push({ title: 'Parent link request: ' + c.child, detail: 'Karen Hale asked to be linked as parent (' + c.how + ').', cta: 'Review', to: { view: 'person', id: 'karen' } }));
+  }
+  if (who === 'jo' && ashby && ashby.task && !ashby.task.done && ashby.stage !== 'won') items.push({ title: 'Send Ashby Builders their revised proposal', detail: 'Due Friday 31 October.', cta: 'Open', to: { view: 'sponsors', tab: 'org', org: 'ashby' } });
+  if (who === 'chris') items.push({ title: "Confirm Saturday's fixture details", detail: 'v Lewes Road, 3pm. The kick-off time came from the league feed. Please check it.', cta: 'Check fixture', to: { view: 'matchday' } });
+  return items;
+}
+
+/* ---------- Home ---------- */
+function Home({ ctx }) {
+  const { S, can, go, openSugg, role } = ctx;
+  const won = S.deals.filter((d) => d.stage === 'won'); const open = S.deals.filter((d) => d.stage === 'proposal' || d.stage === 'negotiation');
+  const count = S.peopleBase + (S.uploadedSource ? 81 : 0) - S.people.filter((p) => p.status === 'erased').length;
+  const items = digestItems(ctx, role);
+  return html`<div className="stack" style=${{ gap: '18px' }}>
+    <div className="grid">
+      <section className="card"><span className="eyebrow">Fans</span><div className="kpi">${count.toLocaleString('en-GB')} <small>people</small></div><div className="soft">1,214 with marketing consent for at least one purpose<br/>63% seen in the last 90 days</div><button className="linkbtn" onClick=${() => go({ view: 'supporters' })}>View supporters</button></section>
+      <section className="card"><span className="eyebrow">Sponsors</span>
+        ${can('values') ? html`<div className="kpi">${fmt(won.reduce((a, d) => a + d.value, 0))} <small>contracted this season</small></div><div className="soft">${won.length} active sponsors<br/>${open.length} deals in progress worth ${fmt(open.reduce((a, d) => a + d.value, 0))}</div>`
+          : html`<div className="kpi">${won.length} <small>active sponsors</small></div><${LockNote}>Values hidden. Ask your club owner for the Commercial values permission.<//>`}
+        <button className="linkbtn" onClick=${() => go({ view: 'sponsors' })}>View pipeline</button></section>
+      <section className="card"><span className="eyebrow">Matchday</span><strong style=${{ fontSize: '16px' }}>Last home game: v Marden Athletic</strong><div className="soft">Sat 25 Oct · L 0–2<br/>Attendance 398 · revenue £5,060</div><button className="linkbtn" onClick=${() => go({ view: 'matchday' })}>Open matchday view</button></section>
+      <section className="card"><span className="eyebrow">Data health</span><div className="kpi">81% <small>records recognised</small></div><div className="soft">${openSugg} possible duplicates waiting. Nothing is held up by them.<br/>Last import: TicketCo, 2 hours ago</div><button className="linkbtn" onClick=${() => go({ view: 'data', tab: 'suggestions' })}>Review suggestions</button></section>
+    </div>
+    <section className="card flat"><h2>Needs you this week</h2>
+      ${items.length ? html`<div>${items.map((i) => html`<div className="listrow" key=${i.title}><span>${i.title}</span><button className="linkbtn" onClick=${() => go(i.to)}>${i.cta}</button></div>`)}</div>` : html`<p className="soft" style=${{ margin: 0 }}>Nothing needs you right now.</p>`}
+    </section>
+  </div>`;
+}
+
+/* ---------- Supporters ---------- */
+function Supporters({ ctx }) {
+  const { visiblePeople, go, life } = ctx;
+  const [q, setQ] = useState(''); const [type, setType] = useState('All'); const [st, setSt] = useState(false);
+  const types = ['All','Supporter','Season-ticket holder','Sponsor contact','Parent or guardian','Volunteer'];
+  const list = visiblePeople.filter((p) => (type === 'All' || p.types.includes(type)) && (!st || p.st) && (p.name + p.email).toLowerCase().includes(q.toLowerCase()));
+  const consentCount = (p) => PURPOSES.filter(([k]) => CHANNELS.some(([c]) => p.consents[k][c].on)).length;
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <div className="card flat">
+      <div className="row">
+        <label className="field" style=${{ flex: '1 1 220px' }}>Search<input className="input" value=${q} onChange=${(e) => setQ(e.target.value)} placeholder="Name or email" /></label>
+        <label className="field">Contact type<select className="select" value=${type} onChange=${(e) => setType(e.target.value)}>${types.map((t) => html`<option key=${t}>${t}</option>`)}</select></label>
+        <label className="row" style=${{ marginTop: '18px' }}><input type="checkbox" checked=${st} onChange=${(e) => setSt(e.target.checked)} /> Season-ticket holders only</label>
+        <button className="btn ghost small" style=${{ marginTop: '18px' }} onClick=${() => { setQ(''); setType('All'); setSt(false); }}>Clear filters</button>
+      </div>
+    </div>
+    <div className="card"><div className="tablewrap"><table style=${{ minWidth: '680px' }}>
+      <thead><tr><th>Name</th><th>Contact types</th><th>Last seen</th><th>Lifetime value</th><th>Consent</th></tr></thead>
+      <tbody>${list.map((p) => html`<tr key=${p.id} className="click" onClick=${() => go({ view: 'person', id: p.id })}>
+        <td><button className="linkbtn" style=${{ textDecoration: 'none', color: 'var(--fg)', fontWeight: 600 }} onClick=${(e) => { e.stopPropagation(); go({ view: 'person', id: p.id }); }}>${p.name}</button>${p.age === 'minor' ? html` <span className="chip warn">Minor</span>` : null}${p.age === 'unknown' ? html` <span className="chip">Age unknown</span>` : null}</td>
+        <td className="soft">${p.types.join(', ')}</td><td className="num">${p.lastSeen || '—'}</td><td className="num">${fmt(life(p))}</td><td className="soft">${consentCount(p)} of 5 purposes</td></tr>`)}</tbody>
+    </table></div><span className="muted">Showing ${list.length} sample people. The real list holds everyone the club knows.</span></div>
+  </div>`;
+}
+
+/* ---------- Person ---------- */
+function Person({ ctx, id }) {
+  const { S, P, update, toast, audit, go, life, can, role, setModal } = ctx;
+  const p = P(id); const [shown, setShown] = useState(false);
+  if (!p) return html`<p>Not found.</p>`;
+  const pending = S.childRequests.filter((c) => c.parent === p.id && c.status === 'pending');
+  const reveal = () => { setShown(true); update((n) => audit(n, 'Viewed contact details: ' + p.name)); };
+  const mask = (s) => s ? s.replace(/^(.).*(@.*)$/, '$1•••$2').replace(/^(\d{2})\d{3} \d{3}(\d{3})$/, '$1••• •••$2') : '—';
+  const edit = () => setModal(html`<${EditDetails} ctx=${ctx} p=${p} close=${() => setModal(null)} />`);
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => go({ view: 'supporters' })}>← Back to supporters</button>
+    ${p.status !== 'active' && html`<div className="card warnbox"><strong style=${{ color: 'var(--warn)' }}>${p.status === 'erased' ? 'This person has been erased.' : 'Erasure requested. Hidden from lists, search and segments, and excluded from every send.'}</strong></div>`}
+    <section className="card"><div className="row between">
+      <div className="stack"><h2 style=${{ fontSize: '26px' }}>${p.name}</h2>
+        <div className="row">${p.types.map((t) => html`<span className="chip" key=${t}>${t}</span>`)}${p.age === 'minor' ? html`<span className="chip warn">Minor · 14</span>` : p.age === 'unknown' ? html`<span className="chip">Age unknown</span>` : html`<span className="chip">Adult</span>`}${life(p) > 900 ? html`<span className="chip accent">Top 10% by value</span>` : null}</div></div>
+      <div className="row"><button className="btn ghost" onClick=${() => toast('Conversation logged against ' + p.name + ' (prototype).')}>Log a conversation</button><button className="btn" onClick=${edit}>Edit details</button></div>
+    </div></section>
+    ${p.age === 'minor' && html`<section className="card warnbox"><strong>Consent managed by Karen Hale (parent)</strong><span className="soft">Josh is never included in marketing, whatever consents exist. He can use the supporter portal himself, because he is 13 or over.</span></section>`}
+    ${pending.map((c) => html`<section className="card hl" key=${c.child}><strong>Parent link request: ${c.child}</strong><span className="soft">Karen asked to be linked as parent. Connection given: ${c.how}. Check this against what the club knows before confirming.</span>
+      <div className="row"><button className="btn" onClick=${() => { update((n) => { const r = n.childRequests.find((x) => x.child === c.child); r.status = 'confirmed'; audit(n, 'Confirmed parent link: Karen Hale → ' + c.child); }); toast('Link confirmed. Karen has been told.'); }}>Confirm link</button><button className="btn ghost" onClick=${() => { update((n) => { n.childRequests.find((x) => x.child === c.child).status = 'declined'; audit(n, 'Declined parent link request for ' + c.child); }); toast('Request declined. Karen has been told.'); }}>Decline</button></div></section>`)}
+    <div className="grid">
+      <section className="card"><h3>Contact details</h3>
+        <div className="listrow"><span className="muted">Email</span><span>${shown ? p.email || '—' : mask(p.email)}</span></div>
+        <div className="listrow"><span className="muted">Mobile</span><span>${shown ? p.phone || '—' : mask(p.phone)}</span></div>
+        ${shown ? html`<span style=${{ color: 'var(--warn)', fontSize: '12px' }}>Viewed by you, ${clock().slice(11)}. Views are logged.</span>` : html`<button className="btn outline small" style=${{ alignSelf: 'flex-start' }} onClick=${reveal}>Show contact details</button>`}
+      </section>
+      <section className="card"><h3>Profile</h3>
+        <div className="listrow"><span className="muted">Postcode</span><span>${p.postcode || '—'} <span className="muted" style=${{ fontSize: '12px' }}>· from ${p.sources[0] ? p.sources[0].split(' ')[0] : '—'}</span></span></div>
+        <div className="listrow"><span className="muted">Age status</span><span>${p.age === 'minor' ? 'Minor' : p.age === 'unknown' ? 'Unknown' : 'Adult'} <span className="muted" style=${{ fontSize: '12px' }}>· ${p.ageNote}</span></span></div>
+        ${p.org && html`<div className="listrow"><span className="muted">Sponsor contact</span><button className="linkbtn" onClick=${() => go({ view: 'sponsors', tab: 'org', org: p.org })}>${S.orgs[p.org].name}</button></div>`}
+      </section>
+      <section className="card"><h3>Value and engagement</h3><div className="kpi">${fmt(life(p))} <small>lifetime</small></div>
+        <span className="soft">Tickets ${fmt(p.value.tickets)} · Shop ${fmt(p.value.shop)} · Matchday ${fmt(p.value.matchday)} · Mixlr ${fmt(p.value.mixlr)}</span><span className="soft">${p.games || '—'}</span></section>
+    </div>
+    <section className="card"><h3>Consents</h3><div className="tablewrap"><table style=${{ minWidth: '560px' }}>
+      <thead><tr><th>Purpose</th>${CHANNELS.map(([, l]) => html`<th key=${l}>${l}</th>`)}</tr></thead>
+      <tbody>${PURPOSES.map(([k, l]) => html`<tr key=${k}><th scope="row" style=${{ fontWeight: 500 }}>${l}</th>${CHANNELS.map(([c]) => { const v = p.consents[k][c]; return html`<td key=${c} title=${v.on ? v.src + (v.date ? ', ' + v.date : '') : v.src}>${v.on ? html`<span className="chip ok">Yes</span>` : html`<span className="muted">No</span>`}</td>`; })}</tr>`)}</tbody>
+    </table></div><span className="muted" style=${{ fontSize: '12px' }}>Hover a cell for where the choice came from.${p.age === 'minor' ? ' Marketing is never sent to minors, whatever this table shows.' : ''}</span></section>
+    <div className="grid">
+      <section className="card"><h3>Linked source records</h3>${p.sources.map((s) => html`<div className="listrow" key=${s}><span>${s}</span></div>`)}
+        ${S.suggestions.filter((s) => s.a === p.id && s.status === 'open').map((s) => html`<button key=${s.id} className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => go({ view: 'data', tab: 'suggestions', sel: s.id })}>1 possible duplicate waiting: "${s.otherName}"</button>`)}</section>
+      <section className="card"><h3>Relationships</h3>${p.relations.length ? p.relations.map(([t, who]) => html`<div className="listrow" key=${who}><span>${t} <button className="linkbtn" onClick=${() => go({ view: 'person', id: who })}>${P(who).name}</button></span><span className="muted">Never merge · confirmed by Sam Patel</span></div>`) : html`<span className="muted">None recorded.</span>`}
+        ${S.childRequests.filter((c) => c.parent === p.id && c.status === 'confirmed').map((c) => html`<div className="listrow" key=${c.child}><span>Parent of ${c.child}</span><span className="muted">Confirmed today</span></div>`)}</section>
+    </div>
+    <section className="card"><h3>Activity</h3>${p.activity.length ? p.activity.map((a, i) => html`<div className="listrow" key=${i}><span className="muted num" style=${{ width: '110px' }}>${a[0]}</span><span style=${{ color: 'var(--accent-hi)', width: '100px' }}>${a[1]}</span><span style=${{ flex: '1 1 220px' }}>${a[2]}</span></div>`) : html`<span className="muted">No activity yet.</span>`}</section>
+  </div>`;
+}
+
+function EditDetails({ ctx, p, close }) {
+  const { update, toast, audit } = ctx;
+  const [phone, setPhone] = useState(''); const [ok, setOk] = useState(false);
+  const known = { '07700 900789': 3, '07700 900123': 0 };
+  const n = known[phone.trim()] ?? 0;
+  const valid = /^0\d{4} ?\d{6}$/.test(phone.trim());
+  return html`<${Modal} title=${'Add a phone number for ' + p.name} onClose=${close}>
+    <label className="field">Mobile number<input className="input" value=${phone} onChange=${(e) => setPhone(e.target.value)} placeholder="07700 900000" /></label>
+    <label className="row"><input type="checkbox" checked=${ok} onChange=${(e) => setOk(e.target.checked)} /> I've confirmed this number with ${p.name.split(' ')[0]}</label>
+    ${valid && html`<div className="card flat" style=${{ padding: '12px' }}>${n ? (ok ? html`<strong>This will link ${n} older records</strong><span className="soft">${n} phone-only ticket orders from 2023 and 2024 will join ${p.name}'s record. Their value and attendance will be recalculated.</span>` : html`<strong>This will create ${n} suggestions for review</strong><span className="soft">Because the number isn't confirmed, ${n} older records will appear in Possible duplicates instead of linking automatically.</span>`) : html`<span className="soft">No older records share this number.</span>`}</div>`}
+    <div className="row"><button className="btn" disabled=${!valid} onClick=${() => { update((s) => { const q = s.people.find((x) => x.id === p.id); q.phone = phone.trim(); if (n && ok) { q.value.tickets += 96; q.sources.push(n + ' phone-only TicketCo orders (linked)'); } if (n && !ok) s.extraSuggestions += n; audit(s, 'Added phone to ' + p.name + (ok ? ' (confirmed)' : ' (not confirmed)')); }); toast(n ? (ok ? n + ' older records linked to ' + p.name + '.' : n + ' suggestions added to Possible duplicates.') : 'Phone number saved.'); close(); }}>Save</button><button className="btn ghost" onClick=${close}>Cancel</button></div>
+  <//>`;
+}
+
+/* ---------- Segments ---------- */
+function Segments({ ctx }) {
+  const { S, update, toast, audit, go, P } = ctx;
+  const [name, setName] = useState('Lapsed season-ticket holders');
+  const [nl, setNl] = useState('people who had a season ticket last year but not this year');
+  const [rules, setRules] = useState([{ id: 'st', p: '2024/25', op: '' }]);
+  const [purpose, setPurpose] = useState('tickets'); const [channel, setChannel] = useState('email');
+  const [kind, setKind] = useState('Dynamic'); const [removed, setRemoved] = useState([]); const [added, setAdded] = useState([]);
+  const catalogue = RULES.concat(S.uploadedSource ? [{ id: 'src', group: 'Uploaded sources', label: 'Is in source', params: ['Summer Fun Day raffle'] }] : []);
+  const isLapsed = rules.length === 2 && rules[0].id === 'st' && rules[0].p === '2024/25' && rules[1].id === 'st' && rules[1].p === '2025/26' && rules[1].op === 'AND NOT';
+  const hash = rules.map((r) => r.id + r.p + r.op).join('|').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7);
+  const matched = isLapsed ? 148 : rules.length === 1 && rules[0].id === 'st' ? (rules[0].p === '2024/25' ? 402 : 254) : 60 + hash % 500;
+  const base = isLapsed && purpose === 'tickets' && channel === 'email';
+  const noC = base ? 41 : Math.round(matched * (channel === 'email' ? 0.28 : channel === 'wa' ? 0.7 : 0.82));
+  const excl = [
+    ['no ' + CHANNELS.find((c) => c[0] === channel)[1].toLowerCase() + ' consent (or soft opt-in) for ' + PURPOSES.find((x) => x[0] === purpose)[1].toLowerCase(), noC, 'For example Tom Breward (opted out of email), and others'],
+    ['minors', isLapsed ? 6 : Math.round(matched * 0.04), 'Junior season-ticket holders. Never marketed to.'],
+    ['suppressed (unsubscribed or bounced)', channel === 'email' ? (isLapsed ? 3 : Math.round(matched * 0.02)) : 1, 'Unsubscribes, bounces and complaints'],
+    ['age not known', isLapsed ? 9 : Math.round(matched * 0.06), 'Excluded until their age is confirmed'],
+    ['pending erasure', S.rights.some((r) => r.status === 'hold') && isLapsed ? 0 : 0, 'People with an erasure on hold'],
+    ['same address as another recipient', channel === 'email' ? (isLapsed ? 2 : Math.round(matched * 0.01)) : 0, 'Households sharing an inbox get one copy']
+  ];
+  const receive = Math.max(0, matched - excl.reduce((a, e) => a + e[1], 0) - removed.length + added.length);
+  const sample = ['sarah','mark','jamie','nadia'].filter((id) => !removed.includes(id));
+  const addOpts = ctx.visiblePeople.filter((p) => !sample.includes(p.id) && !added.includes(p.id) && p.age === 'adult').map((p) => ({ value: p.id, label: p.name, meta: p.email }));
+  const setRule = (i, k, v) => setRules((rs) => rs.map((r, j) => j === i ? Object.assign({}, r, { [k]: v }, k === 'id' ? { p: catalogue.find((c) => c.id === v).params[0] } : {}) : r));
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    ${S.segments.length > 0 && html`<section className="card flat"><h2>Saved segments</h2>${S.segments.map((s) => html`<div className="listrow" key=${s.id}><span><strong>${s.name}</strong> <span className="muted">· ${PURPOSES.find((x) => x[0] === s.purpose)[1]} by ${CHANNELS.find((c) => c[0] === s.channel)[1].toLowerCase()} · ${s.kind}</span></span><span className="num">${s.receive} will receive</span></div>`)}</section>`}
+    <section className="card"><h2>New segment</h2>
+      <label className="field">Segment name<input className="input" style=${{ maxWidth: '520px' }} value=${name} onChange=${(e) => setName(e.target.value)} /></label>
+      <label className="field">Describe who you want (optional)<div className="row"><input className="input" style=${{ flex: '1 1 320px' }} value=${nl} onChange=${(e) => setNl(e.target.value)} /><button className="btn outline" onClick=${() => { setRules([{ id: 'st', p: '2024/25', op: '' }, { id: 'st', p: '2025/26', op: 'AND NOT' }]); toast('Turned into 2 rules from the catalogue.'); }}>Turn into rules</button></div></label>
+      <h3>Rules</h3>
+      ${rules.map((r, i) => { const def = catalogue.find((c) => c.id === r.id); return html`<div key=${i} className="stack">
+        ${i > 0 && html`<select aria-label="Combine with" className="select" style=${{ width: 'fit-content', minHeight: '32px' }} value=${r.op} onChange=${(e) => setRule(i, 'op', e.target.value)}><option>AND</option><option>OR</option><option>AND NOT</option></select>`}
+        <div className="rule"><span className="muted">${def.group}</span>
+          <select aria-label="Rule" className="select" value=${r.id} onChange=${(e) => setRule(i, 'id', e.target.value)}>${catalogue.map((c) => html`<option key=${c.id} value=${c.id}>${c.label}</option>`)}</select>
+          <select aria-label="Value" className="select" value=${r.p} onChange=${(e) => setRule(i, 'p', e.target.value)}>${def.params.map((x) => html`<option key=${x}>${x}</option>`)}</select>
+          ${rules.length > 1 && html`<button className="btn ghost small" onClick=${() => setRules((rs) => rs.filter((_, j) => j !== i))}>Remove</button>`}</div></div>`; })}
+      <div className="row"><button className="btn ghost small" onClick=${() => setRules((rs) => [...rs, { id: 'att', p: '1 home game', op: 'AND' }])}>+ Add rule</button><span className="muted" style=${{ fontSize: '12px' }}>Catalogue: Behaviour · Demographics · Value${S.uploadedSource ? ' · Uploaded sources' : ''}</span></div>
+      <div className="row">
+        <label className="field">Purpose<select className="select" value=${purpose} onChange=${(e) => setPurpose(e.target.value)}>${PURPOSES.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+        <label className="field">Channel<select className="select" value=${channel} onChange=${(e) => setChannel(e.target.value)}>${CHANNELS.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+      </div>
+    </section>
+    <section className="card hl" aria-label="Count before list"><h2>Who will receive it</h2>
+      <div className="listrow"><span>Matched the rules</span><strong className="num">${matched}</strong></div>
+      ${excl.filter((e) => e[1] > 0).map((e) => html`<details key=${e[0]} style=${{ borderTop: '1px solid var(--line)' }}><summary className="row between" style=${{ padding: '9px 0', listStyle: 'none' }}><span className="soft">▸ Excluded: ${e[0]}</span><span className="num">−${e[1]}</span></summary><div className="muted" style=${{ padding: '0 0 9px 16px' }}>${e[2]}</div></details>`)}
+      ${(removed.length || added.length) ? html`<div className="listrow"><span className="soft">Adjusted by hand</span><span className="num">${added.length - removed.length >= 0 ? '+' : ''}${added.length - removed.length}</span></div>` : null}
+      <div className="listrow" style=${{ fontSize: '18px' }}><strong>Will receive</strong><strong className="num" style=${{ color: 'var(--accent-hi)' }}>${receive}</strong></div>
+      <span className="muted" style=${{ fontSize: '12px' }}>Exclusions are applied for this purpose and channel, and can't be switched off.</span>
+    </section>
+    <section className="card"><div className="row between"><h2>Review the ${receive} people</h2><div style=${{ width: '280px', maxWidth: '100%' }}><${Typeahead} id="addperson" label="Add someone" options=${addOpts} value=${null} placeholder="Search by name" onPick=${(v) => { setAdded((a) => [...a, v]); toast(P(v).name + ' added.'); }} /></div></div>
+      ${sample.concat(added).map((id) => html`<div className="listrow" key=${id}><span>${P(id).name} <span className="muted">· ${added.includes(id) ? 'added by hand' : 'season ticket 2024/25'}</span></span><button className="btn ghost small" aria-label=${'Remove ' + P(id).name} onClick=${() => added.includes(id) ? setAdded((a) => a.filter((x) => x !== id)) : setRemoved((r) => [...r, id])}>Remove</button></div>`)}
+      <span className="muted">Showing ${sample.length + added.length} of ${receive}</span></section>
+    <section className="row">
+      <fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="row"><legend className="soft" style=${{ marginBottom: '4px' }}>Save as</legend>
+        <label className="row"><input type="radio" name="kind" checked=${kind === 'Dynamic'} onChange=${() => setKind('Dynamic')} /> Dynamic: re-check whenever it's used</label>
+        <label className="row"><input type="radio" name="kind" checked=${kind === 'Snapshot'} onChange=${() => setKind('Snapshot')} /> Snapshot: freeze this list now</label></fieldset>
+      <button className="btn" onClick=${() => { const sid = 'seg' + Date.now(); update((n) => { n.segments.unshift({ id: sid, name, purpose, channel, receive, kind }); audit(n, 'Saved segment: ' + name + ' (' + receive + ')'); }); toast('Segment saved: ' + name + '.', { label: 'Use in an email', fn: () => go({ view: 'messages', seg: sid }) }); }}>Save segment</button>
+    </section>
+  </div>`;
+}
+
+/* ---------- Messages ---------- */
+function Messages({ ctx }) {
+  const { S, update, toast, audit, can, role, setModal, nav } = ctx;
+  const [blocks, setBlocks] = useState([['header'],['text','Saturday, 3pm at Mere Lane. Gates open at 1.45pm. The bar serves hot food from 1.30pm.'],['image'],['button','Buy tickets'],['divider'],['sponsor','Weald Motors'],['footer']]);
+  const [mobile, setMobile] = useState(false);
+  const [seg, setSeg] = useState(nav.seg || 'regulars');
+  const segment = S.segments.find((s) => s.id === seg);
+  const doSend = () => { update((n) => { n.sends.unshift({ subject: 'Matchday: Ravensmere Town FC v Lewes Road', seg: segment.name, n: segment.receive, by: USERS[role].name, when: clock() }); audit(n, 'Sent "Matchday: Ravensmere Town FC v Lewes Road" to ' + segment.receive + ' people'); }); toast('Sent to ' + segment.receive + ' people. One copy per address.'); };
+  const send = () => { if (!S.mfa[role] && needsMfa(S, role)) setModal(html`<${MfaFlow} ctx=${ctx} after=${doSend} close=${() => setModal(null)} />`); else doSend(); };
+  const move = (i, d) => setBlocks((b) => { const c = b.slice(); const j = i + d; if (j < 0 || j >= c.length) return c; [c[i], c[j]] = [c[j], c[i]]; return c; });
+  const render = (b, i) => {
+    const t = b[0];
+    if (t === 'header') return html`<div key=${i} className="clubhead" style=${{ justifyContent: 'flex-start' }}><${Crest} size=${36} /><strong style=${{ fontSize: '18px' }}>Ravensmere Town FC</strong></div>`;
+    if (t === 'text') return html`<div key=${i} style=${{ padding: '0 24px' }}><h3 style=${{ fontSize: '21px', margin: '16px 0 8px' }}>Matchday: Ravensmere Town FC v Lewes Road</h3><p style=${{ margin: 0, fontSize: '15px', lineHeight: 1.5 }}>${b[1]}</p></div>`;
+    if (t === 'image') return html`<div key=${i} style=${{ margin: '14px 24px', background: 'var(--paper-tint)', borderRadius: '8px', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-muted)', fontSize: '13px' }}>[Image: last week's team photo]</div>`;
+    if (t === 'button') return html`<div key=${i} style=${{ padding: '4px 24px 12px' }}><span style=${{ display: 'inline-block', background: 'var(--club)', color: '#fff', padding: '12px 20px', borderRadius: '6px', fontWeight: 600 }}>${b[1]}</span></div>`;
+    if (t === 'divider') return html`<hr key=${i} style=${{ border: 0, borderTop: '1px solid var(--paper-line)', margin: '8px 24px' }} />`;
+    if (t === 'sponsor') return html`<div key=${i} style=${{ margin: '10px 24px', border: '1px dashed #9ca3af', borderRadius: '8px', padding: '12px' }}><div style=${{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ink-muted)' }}>Match ball sponsor</div><strong>${b[1]}</strong><div style=${{ fontSize: '14px', color: 'var(--ink-soft)' }}>Proud to support Ravensmere Town FC. Book your MOT online.</div></div>`;
+    if (t === 'footer') return html`<div key=${i} style=${{ background: '#f9fafb', padding: '14px 24px', fontSize: '12px', color: 'var(--ink-muted)', marginTop: '10px' }}>You're getting this because you asked for club news from Ravensmere Town FC. <button className="linkbtn" onClick=${() => ctx.setApp('unsubscribe')}>Unsubscribe</button> · <button className="linkbtn" onClick=${() => ctx.setApp('portal')}>Manage preferences</button></div>`;
+    return null;
+  };
+  const labels = { header: 'Header', text: 'Text', image: 'Image', button: 'Button', divider: 'Divider', sponsor: 'Sponsor slot', footer: 'Footer' };
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <div className="row" style=${{ alignItems: 'flex-start', gap: '14px' }}>
+      <section className="card" style=${{ flex: '0 1 230px' }}><h2>Blocks</h2>
+        ${blocks.map((b, i) => html`<div key=${i} className="row between" style=${{ borderTop: i ? '1px solid var(--line)' : 0, paddingTop: i ? '6px' : 0 }}><span>${labels[b[0]]}</span><span className="row" style=${{ gap: '4px' }}><button className="btn ghost small" aria-label=${'Move ' + labels[b[0]] + ' up'} onClick=${() => move(i, -1)}>↑</button><button className="btn ghost small" aria-label=${'Move ' + labels[b[0]] + ' down'} onClick=${() => move(i, 1)}>↓</button><button className="btn ghost small" aria-label=${'Remove ' + labels[b[0]]} onClick=${() => setBlocks((x) => x.filter((_, j) => j !== i))}>×</button></span></div>`)}
+        <label className="field">Add a block<select className="select" value="" onChange=${(e) => { const t = e.target.value; if (t) setBlocks((b) => [...b.slice(0, -1), [t, t === 'text' ? 'New paragraph. Click to edit in the real product.' : t === 'button' ? 'Find out more' : t === 'sponsor' ? 'The Plough Inn' : ''], b[b.length - 1]]); }}><option value="">Choose…</option>${Object.entries(labels).filter(([k]) => k !== 'footer' && k !== 'header').map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+        <div className="tabs" role="tablist" aria-label="Preview size"><button className="tab" role="tab" aria-selected=${!mobile} onClick=${() => setMobile(false)}>Desktop</button><button className="tab" role="tab" aria-selected=${mobile} onClick=${() => setMobile(true)}>Mobile</button></div>
+      </section>
+      <section className=${'emailprev' + (mobile ? ' mobile' : '')} style=${{ flex: '2 1 420px', minWidth: 0 }} aria-label="Email preview"><div className="paper">${blocks.map(render)}</div></section>
+      <section className="card" style=${{ flex: '1 1 280px' }}><h2>Send</h2>
+        <${Typeahead} id="segpick" label="Segment" options=${S.segments.map((s) => ({ value: s.id, label: s.name, meta: PURPOSES.find((x) => x[0] === s.purpose)[1].toLowerCase() + ' by ' + s.channel }))} value=${seg} onPick=${setSeg} placeholder="Type a segment name" />
+        ${segment && html`<div><span className="kpi">${segment.receive}</span> <span className="soft">will receive it</span> <span className="muted">· after exclusions</span></div>`}
+        <div className="stack" style=${{ gap: '2px' }}><span className="muted">From</span><span>Ravensmere Town FC &lt;noreply@ravensmere-mail.miggle.net&gt;</span><span style=${{ color: 'var(--warn)', fontSize: '12px' }}>Using your Miggle sender until your own domain is verified.</span></div>
+        <button className="btn outline" onClick=${() => { update((n) => { n.flags.testSent = true; }); toast('Test sent to ' + USERS[role].name + '.'); }}>Send test to me</button>
+        ${can('send') ? html`<button className="btn" onClick=${send} disabled=${!segment}>Send now</button>` : html`<button className="btn" disabled=${true}>Send now</button><${LockNote}>Ask your club owner for the Send permission.<//>`}
+        <span className="muted" style=${{ fontSize: '12px' }}>Every email has a one-click unsubscribe. One copy goes to each address.</span>
+      </section>
+    </div>
+    ${S.sends.length > 0 && html`<section className="card flat"><h2>Sent</h2>${S.sends.map((s, i) => html`<div className="listrow" key=${i}><span>${s.subject} <span className="muted">· ${s.seg}</span></span><span className="muted num">${s.n} people · ${s.by} · ${s.when}</span></div>`)}</section>`}
+  </div>`;
+}
+
+function MfaFlow({ ctx, after, close }) {
+  const { update, role, toast, audit } = ctx; const [step, setStep] = useState('choose'); const [m, setM] = useState('app'); const [code, setCode] = useState('');
+  const first = USERS[role].name.split(' ')[0];
+  return html`<${Modal} title="Set up a second sign-in step" onClose=${close}>
+    ${step === 'choose' && html`<p className="soft" style=${{ margin: 0 }}>Because you can email every supporter, we need to check it's really you, ${first}. You'll only do this once on this device.</p>
+      <button className="btn ghost" style=${{ justifyContent: 'flex-start', minHeight: '56px', textAlign: 'left' }} onClick=${() => { setM('app'); setStep('code'); }}><span><strong>Authenticator app</strong><br/><span className="muted">Scan a code with Google Authenticator, Microsoft Authenticator or similar</span></span></button>
+      <button className="btn ghost" style=${{ justifyContent: 'flex-start', minHeight: '56px', textAlign: 'left' }} onClick=${() => { setM('text'); setStep('code'); }}><span><strong>Text message</strong><br/><span className="muted">We'll text a code to your mobile</span></span></button>`}
+    ${step === 'code' && html`<p className="soft" style=${{ margin: 0 }}>${m === 'app' ? 'Open your authenticator app and type the code shown for Ravensmere Town FC.' : 'We texted a code to your mobile.'}</p>
+      <label className="field">6-digit code (any 6 digits work in this prototype)<input className="input" inputMode="numeric" maxLength="6" style=${{ fontSize: '22px', letterSpacing: '.3em', maxWidth: '200px' }} value=${code} onChange=${(e) => setCode(e.target.value.replace(/\D/g, ''))} /></label>
+      <div className="row"><button className="btn" disabled=${code.length !== 6} onClick=${() => { update((n) => { n.mfa[role] = true; audit(n, 'Set up a second sign-in step'); }); close(); toast('Second step set up.'); after(); }}>Confirm</button><button className="btn ghost" onClick=${() => setStep('choose')}>Back</button></div>`}
+  <//>`;
+}
+
+/* ---------- Sponsors ---------- */
+function Sponsors({ ctx }) {
+  const { nav, setNav } = ctx; const tab = nav.tab || 'pipeline';
+  const tabs = [['pipeline','Pipeline'],['orgs','Organisations'],['inventory','Inventory']];
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <div className="tabs" role="tablist" aria-label="Sponsor views">${tabs.map(([id, l]) => html`<button key=${id} className="tab" role="tab" aria-selected=${tab === id || (id === 'orgs' && (tab === 'org' || tab === 'value'))} onClick=${() => setNav({ view: 'sponsors', tab: id })}>${l}</button>`)}</div>
+    ${tab === 'pipeline' && html`<${Pipeline} ctx=${ctx} />`}
+    ${tab === 'orgs' && html`<${Orgs} ctx=${ctx} />`}
+    ${tab === 'inventory' && html`<${Inventory} ctx=${ctx} />`}
+    ${tab === 'org' && html`<${Org} ctx=${ctx} id=${nav.org} />`}
+    ${tab === 'value' && html`<${Value} ctx=${ctx} id=${nav.org} />`}
+  </div>`;
+}
+
+function useMoveDeal(ctx) {
+  const { update, toast, audit, setModal, role, S } = ctx;
+  const apply = (id, stage, extra) => {
+    const before = structuredClone(S.deals.find((d) => d.id === id));
+    const beforeInv = structuredClone(S.inventory);
+    update((n) => {
+      const d = n.deals.find((x) => x.id === id); const now = Date.now(); const last = d.history[d.history.length - 1];
+      if (last && now - last.at < 5 * 60 * 1000 && last.by === USERS[role].name) { last.to = stage; last.at = now; } else d.history.push({ from: d.stage, to: stage, at: now, by: USERS[role].name });
+      d.stage = stage; if (extra && extra.reason) d.lostReason = extra.reason;
+      if (stage === 'won') { d.prob = 100; (d.items || []).forEach(([t, k]) => { n.inventory.find((i) => i.id === t).sold += k; }); n.orgs[d.org].status = 'Sponsor'; audit(n, 'Won: ' + n.orgs[d.org].name + ' (' + fmt(d.value) + '); contract and placements created'); }
+    });
+    const nm = S.orgs[before.org].name; const st = STAGES.find((s) => s[0] === stage)[1];
+    toast(nm + ' moved to ' + st + '.', { label: 'Undo', fn: () => update((n) => { const i = n.deals.findIndex((x) => x.id === id); n.deals[i] = before; n.inventory = beforeInv; }) });
+  };
+  return (id, stage) => {
+    const d = S.deals.find((x) => x.id === id); if (!d || d.stage === stage) return;
+    const nm = S.orgs[d.org].name;
+    if (stage === 'won') setModal(html`<${Modal} title=${'Mark ' + nm + ' as won?'} onClose=${() => setModal(null)}><p className="soft" style=${{ margin: 0 }}>This creates the contract (${fmt(d.value)}) and its placements: ${d.what}. Inventory updates straight away.</p><div className="row"><button className="btn" onClick=${() => { setModal(null); apply(id, 'won'); }}>Mark as won and create contract</button><button className="btn ghost" onClick=${() => setModal(null)}>Cancel</button></div><//>`);
+    else if (stage === 'lost') setModal(html`<${LostReason} nm=${nm} close=${() => setModal(null)} done=${(r) => { setModal(null); apply(id, 'lost', { reason: r }); }} />`);
+    else apply(id, stage);
+  };
+}
+function LostReason({ nm, close, done }) {
+  const [r, setR] = useState('');
+  return html`<${Modal} title=${'Why was ' + nm + ' lost?'} onClose=${close}><label className="field">Reason (required)<select className="select" value=${r} onChange=${(e) => setR(e.target.value)}><option value="">Choose…</option><option>Price</option><option>Went with another club</option><option>No budget this season</option><option>No response</option><option>Other</option></select></label><div className="row"><button className="btn" disabled=${!r} onClick=${() => done(r)}>Mark as lost</button><button className="btn ghost" onClick=${close}>Cancel</button></div><//>`;
+}
+
+function Pipeline({ ctx }) {
+  const { S, can, setNav } = ctx; const move = useMoveDeal(ctx); const [over, setOver] = useState(null);
+  const edit = can('commercialEdit');
+  const open = S.deals.filter((d) => d.stage === 'proposal' || d.stage === 'negotiation');
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    ${can('values') ? html`<div className="soft">Open deals ${fmt(open.reduce((a, d) => a + d.value, 0))} · weighted ${fmt(open.reduce((a, d) => a + d.value * d.prob / 100, 0))} · contracted this season ${fmt(S.deals.filter((d) => d.stage === 'won').reduce((a, d) => a + d.value, 0))}</div>` : html`<${LockNote}>Deal values are hidden. Ask your club owner for the Commercial values permission.<//>`}
+    ${!edit && html`<${LockNote}>You can see the pipeline but not change it.<//>`}
+    ${edit && html`<span className="muted" style=${{ fontSize: '13px' }}>Drag a card to another column, or use its "Move to" menu. Moves within a few minutes count as one change.</span>`}
+    <div className="tablewrap"><div className="board">
+      ${STAGES.map(([sid, sl]) => { const ds = S.deals.filter((d) => d.stage === sid); return html`<section key=${sid} className=${'col' + (over === sid ? ' over' : '')} aria-label=${sl}
+        onDragOver=${(e) => { if (edit) { e.preventDefault(); setOver(sid); } }} onDragLeave=${() => setOver(null)} onDrop=${(e) => { e.preventDefault(); setOver(null); move(e.dataTransfer.getData('text/plain'), sid); }}>
+        <div className="row between" style=${{ fontSize: '13px', fontWeight: 600 }}><span>${sl}</span><span className="muted">${can('values') ? fmt(ds.reduce((a, d) => a + d.value, 0)) : ds.length}</span></div>
+        ${ds.map((d) => html`<div key=${d.id} className="dcard" draggable=${edit ? 'true' : 'false'} onDragStart=${(e) => e.dataTransfer.setData('text/plain', d.id)}>
+          <button className="linkbtn" style=${{ textAlign: 'left', color: 'var(--fg)', fontWeight: 600, textDecoration: 'none' }} onClick=${() => setNav({ view: 'sponsors', tab: d.org === 'nair' ? 'value' : 'org', org: d.org })}>${S.orgs[d.org].name}</button>
+          <span className="soft" style=${{ fontSize: '12px' }}>${d.what}</span>
+          <span style=${{ fontSize: '12px', color: 'var(--accent-hi)' }}><${Money} can=${can} n=${d.value} suffix=${d.stage !== 'won' && d.stage !== 'lost' ? ' · ' + d.prob + '%' : ''} /></span>
+          <span className="muted" style=${{ fontSize: '12px' }}>${d.owner} · ${d.close}${d.lostReason ? ' · ' + d.lostReason : ''}</span>
+          ${d.history.length ? html`<span className="muted" style=${{ fontSize: '11px' }}>${d.history.length} stage change${d.history.length > 1 ? 's' : ''} recorded</span>` : null}
+          ${edit && html`<select className="select" aria-label=${'Move ' + S.orgs[d.org].name + ' to'} value="" onChange=${(e) => e.target.value && move(d.id, e.target.value)}><option value="">Move to…</option>${STAGES.filter((s) => s[0] !== d.stage).map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select>`}
+        </div>`)}
+      </section>`; })}
+    </div></div>
+  </div>`;
+}
+
+function Orgs({ ctx }) {
+  const { S, can, setNav } = ctx;
+  return html`<div className="card"><div className="tablewrap"><table style=${{ minWidth: '620px' }}><thead><tr><th>Organisation</th><th>Status</th><th>Main contact</th><th>This season</th></tr></thead>
+    <tbody>${Object.entries(S.orgs).map(([id, o]) => { const d = S.deals.find((x) => x.org === id); return html`<tr key=${id} className="click" onClick=${() => setNav({ view: 'sponsors', tab: id === 'nair' ? 'value' : 'org', org: id })}><td><strong>${o.name}</strong></td><td>${o.status === 'Sponsor' ? html`<span className="chip ok">Sponsor</span>` : html`<span className="chip">Prospect</span>`}</td><td className="soft">${o.contact}</td><td>${d ? html`<${Money} can=${can} n=${d.value} />` : '—'}</td></tr>`; })}</tbody></table></div></div>`;
+}
+
+function Inventory({ ctx }) {
+  const { S, can } = ctx;
+  return html`<div className="card"><h2>Inventory this season</h2><div className="tablewrap"><table style=${{ minWidth: '620px' }}><thead><tr><th>Placement type</th><th>Category</th><th>Sold</th><th>Rate card</th></tr></thead>
+    <tbody>${S.inventory.map((i) => html`<tr key=${i.id}><td><strong>${i.name}</strong></td><td className="soft">${i.cat}</td><td className="num">${i.id === 'ball' ? i.sold + ' of ' + i.units + ' matches' : i.id === 'hosp' ? i.sold + ' places' : i.sold + ' of ' + i.units}</td><td><${Money} can=${can} n=${i.rate} suffix=${' ' + i.unitLabel} /></td></tr>`)}</tbody></table></div></div>`;
+}
+
+function Org({ ctx, id }) {
+  const { S, can, update, toast, audit, setNav } = ctx; const o = S.orgs[id]; const d = S.deals.find((x) => x.org === id); const move = useMoveDeal(ctx);
+  const [note, setNote] = useState(''); const [kind, setKind] = useState('Call');
+  if (!o) return null;
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'sponsors', tab: 'pipeline' })}>← Back to pipeline</button>
+    <section className="card"><div className="row between"><div className="stack"><h2 style=${{ fontSize: '24px' }}>${o.name}</h2><span className="soft">${o.sector} · ${o.contact}</span></div>${o.status === 'Sponsor' ? html`<span className="chip ok">Sponsor</span>` : html`<span className="chip">Prospect</span>`}</div>
+      ${d && html`<div className="row soft" style=${{ gap: '8px 20px' }}><span>${STAGES.find((s) => s[0] === d.stage)[1]}</span><span>${d.what}</span><span><${Money} can=${can} n=${d.value} suffix=${d.stage !== 'won' ? ' · ' + d.prob + '%' : ''} /></span><span>Expected ${d.close}</span><span>Owner ${d.owner}</span></div>`}
+      ${d && can('commercialEdit') && d.stage !== 'won' && html`<div className="row"><button className="btn" onClick=${() => move(d.id, 'won')}>Mark as won</button><button className="btn ghost" onClick=${() => move(d.id, 'lost')}>Mark as lost</button></div>`}
+      ${d && d.stage === 'won' && html`<button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'sponsors', tab: 'value', org: id })}>Open sponsor value view</button>`}
+    </section>
+    ${d && d.task && html`<section className="card"><h3>Tasks</h3><div className="listrow"><label className="row"><input type="checkbox" checked=${d.task.done} disabled=${!can('commercialEdit')} onChange=${(e) => { update((n) => { n.deals.find((x) => x.id === d.id).task.done = e.target.checked; audit(n, (e.target.checked ? 'Completed task: ' : 'Reopened task: ') + d.task.text); }); }} /> ${d.task.text}</label><span className="muted">Due ${d.task.due} · ${d.task.owner}</span></div></section>`}
+    <section className="card"><h3>Conversations</h3>
+      ${(d && d.log ? d.log : []).map((l, i) => html`<div className="listrow" key=${i}><span className="muted" style=${{ width: '80px' }}>${l[0]}</span><span className="muted num" style=${{ width: '70px' }}>${l[1]}</span><span style=${{ flex: '1 1 260px' }}>${l[2]}</span></div>`)}
+      ${can('commercialEdit') ? html`<div className="row"><select aria-label="Type" className="select" value=${kind} onChange=${(e) => setKind(e.target.value)}><option>Call</option><option>Meeting</option><option>Email</option><option>Note</option></select><input aria-label="What happened" className="input" style=${{ flex: '1 1 260px' }} value=${note} onChange=${(e) => setNote(e.target.value)} placeholder="What happened?" /><button className="btn ghost" disabled=${!note || !d} onClick=${() => { update((n) => { const x = n.deals.find((y) => y.id === d.id); x.log = x.log || []; x.log.unshift([kind, '27 Oct', note]); }); setNote(''); toast('Conversation logged.'); }}>Log it</button></div>` : html`<${LockNote}>Only commercial staff and owners log sponsor conversations.<//>`}
+    </section>
+  </div>`;
+}
+
+function Value({ ctx, id }) {
+  const { S, can, update, toast, audit, setModal, setNav, go } = ctx; const o = S.orgs[id];
+  useEffect(() => { if (id === 'nair') update((n) => { n.flags.nairViewed = true; }); }, [id]);
+  if (!can('values')) return html`<${LockNote}>The sponsor value view needs the Commercial values permission.<//>`;
+  const share = () => setModal(html`<${Modal} title="Share report with Nair & Co" onClose=${() => setModal(null)}>
+    <div className="paper" style=${{ borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <strong>Nair & Co Accountants · season 2025/26 to date</strong>
+      <span>Main shirt sponsor · 41 min 20 s of on-screen exposure across 8 streamed matches</span>
+      <span>Website: logo shown ${S.web.impressions.toLocaleString('en-GB')} times, ${S.web.clicks} clicks</span><span>Email sponsor slot: 3 sends, 1,120 opens, 64 clicks</span><span>Hospitality: 4 of 6 places used</span>
+      <span style=${{ color: 'var(--ink-muted)', fontSize: '12px' }}>Supporter links and personal spend are never included.</span></div>
+    <div className="row"><button className="btn" onClick=${() => { update((n) => { n.reportSent = true; audit(n, 'Sent sponsor report to Nair & Co Accountants'); }); setModal(null); toast('Report sent to Priya Nair.'); }}>Approve and send to Priya Nair</button><button className="btn ghost" onClick=${() => setModal(null)}>Cancel</button></div><//>`);
+  if (id !== 'nair') return html`<div className="card"><h2>${o.name}</h2><p className="soft" style=${{ margin: 0 }}>The value view has the same sections as Nair & Co's. Sample figures are only filled in for Nair & Co in this prototype.</p><button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'sponsors', tab: 'value', org: 'nair' })}>Open Nair & Co's value view</button></div>`;
+  const tiles = [['Placements and income','£6,000','Kit: main shirt sponsor','CRM contract · 2025/26'],['On-screen exposure','41 min 20 s','Logo seen across 8 streamed matches','From Miggle Dashboard · season to date'],['Website', S.web.impressions.toLocaleString('en-GB'), 'Logo shown · ' + S.web.clicks + ' clicks', 'From the club website · season to date'],['Email sponsor slot','1,120 opens','3 sends · 64 clicks','CRM email · season to date'],['Hospitality used','4 of 6','Guest places this season','CRM hospitality · season to date'],['Players sponsored','None','Player sponsorship is a separate placement','CRM inventory']];
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <section className="card"><div className="row between"><div className="stack"><h2 style=${{ fontSize: '24px' }}>Nair & Co Accountants</h2><span className="soft">Main shirt sponsor · £6,000 · 1 June 2025 to 31 May 2026</span></div>
+      <div className="row">${S.reportSent ? html`<span className="chip ok">Monthly report sent</span>` : null}<button className="btn" onClick=${share}>Share report with sponsor</button></div></div>
+      <span className="muted" style=${{ fontSize: '13px' }}>The shared report leaves out "Contacts who are also supporters" and anyone's personal spend.</span></section>
+    <div className="grid">${tiles.map((t) => html`<section className="card" key=${t[0]}><span className="eyebrow">${t[0]}</span><div className="kpi" style=${{ fontSize: '24px' }}>${t[1]}</div><span className="soft">${t[2]}</span><span className="muted" style=${{ fontSize: '12px' }}>${t[3]}</span></section>`)}</div>
+    <section className="card"><h3>On-screen exposure by position</h3>
+      ${[['Shirt chest',92,'38 min 02 s'],['Back of shirt',8,'3 min 18 s']].map((r) => html`<div className="stack" key=${r[0]} style=${{ gap: '4px' }}><div className="row between"><span>${r[0]}</span><span className="num">${r[1]}% · ${r[2]}</span></div><div className="bar" aria-hidden="true"><div style=${{ width: r[1] + '%' }}></div></div></div>`)}
+      <span className="muted" style=${{ fontSize: '12px' }}>From Miggle Dashboard · 8 streamed matches · season to date</span></section>
+    <section className="card flat" style=${{ borderStyle: 'dashed' }}><h3>Contacts who are also supporters <span className="muted" style=${{ fontWeight: 400, fontSize: '12px' }}>· staff only, never shared</span></h3><div className="listrow"><span><strong>Priya Nair</strong> · Director · supporter spend £310</span><button className="linkbtn" onClick=${() => go({ view: 'person', id: 'priya' })}>Open record</button></div></section>
+  </div>`;
+}
+
+/* ---------- Matchday ---------- */
+const FIXTURES = [
+  { id: 'f1', date: 'Sat 4 Oct 2025', opp: 'Ashdown Vale', comp: 'League', res: 'W 2–1', att: 486, scans: 452, st: 110, gc: 40, known: 351, tickets: 3120, bar: 1980, food: 820, shop: 410, hosp: 540, sponsor: 'Match ball: Weald Motors', linked: 61 },
+  { id: 'f2', date: 'Tue 14 Oct 2025', opp: 'Hollin Bridge', comp: 'County Cup', res: 'D 1–1 (won on pens)', att: 312, scans: 290, st: 96, gc: 22, known: 214, tickets: 1870, bar: 1010, food: 430, shop: 200, hosp: 0, sponsor: 'None', linked: 55 },
+  { id: 'f3', date: 'Sat 25 Oct 2025', opp: 'Marden Athletic', comp: 'League', res: 'L 0–2', att: 398, scans: 371, st: 108, gc: 31, known: 284, tickets: 2540, bar: 1620, food: 610, shop: 290, hosp: 0, sponsor: 'Match ball: Weald Motors', linked: 58 }
+];
+function Matchday({ ctx }) {
+  useEffect(() => { ctx.update((n) => { n.flags.matchday = true; }); }, []);
+  const [sel, setSel] = useState('f3'); const [cmp, setCmp] = useState('f1');
+  const f = FIXTURES.find((x) => x.id === sel); const c = FIXTURES.find((x) => x.id === cmp);
+  const ground = (x) => x.bar + x.food + x.shop; const rev = (x) => x.tickets + ground(x) + x.hosp;
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <section className="card flat"><h2>Home fixtures 2025/26</h2><div className="tablewrap"><table style=${{ minWidth: '640px' }}><thead><tr><th>Date</th><th>Opponent</th><th>Competition</th><th>Result</th><th>Attendance</th><th>Revenue</th></tr></thead>
+      <tbody>${FIXTURES.map((x) => html`<tr key=${x.id} className=${'click' + (x.id === sel ? ' sel' : '')} onClick=${() => setSel(x.id)}><td className="num">${x.date}</td><td><button className="linkbtn" style=${{ color: 'var(--fg)', textDecoration: 'none', fontWeight: 600 }} onClick=${(e) => { e.stopPropagation(); setSel(x.id); }}>${x.opp}</button></td><td>${x.comp}</td><td>${x.res}</td><td className="num">${x.att}</td><td className="num">${fmt(rev(x))}</td></tr>`)}
+      <tr><td className="num muted">Sat 1 Nov 2025</td><td className="muted">Lewes Road</td><td className="muted">League</td><td className="muted">Upcoming</td><td></td><td></td></tr></tbody></table></div></section>
+    <section className="card hl"><div className="row between"><h2 style=${{ fontSize: '21px' }}>Ravensmere Town FC ${f.res.split(' ')[1]} ${f.opp}</h2><span className="soft">${f.date} · ${f.comp} · Mere Lane</span></div>
+      <div className="grid" style=${{ gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))' }}>
+        ${[['Attendance', f.att, 'Scans ' + f.scans + ' · season-ticket holders ' + f.st + ' · Game Changers check-ins ' + f.gc],['Known attendees', f.known, 'Unique people we can name'],['Ticket revenue', fmt(f.tickets), 'TicketCo'],['Ground revenue', fmt(ground(f)), 'Bar, food and shop'],['Hospitality', fmt(f.hosp), f.hosp ? Math.round(f.hosp / 60) + ' guests' : 'No package sold'],['Linked to known people', f.linked + '%', 'Of ground revenue']].map((s) => html`<div key=${s[0]} className="card flat" style=${{ padding: '12px' }}><span className="eyebrow" style=${{ fontSize: '11px' }}>${s[0]}</span><strong className="num" style=${{ fontSize: '22px' }}>${s[1]}</strong><span className="soft" style=${{ fontSize: '13px' }}>${s[2]}</span></div>`)}
+      </div><span className="muted" style=${{ fontSize: '12px' }}>One record per fixture. Breakdowns below are separate tables and never multiplied into these totals. Sponsor activation: ${f.sponsor}.</span></section>
+    <div className="grid">
+      <section className="card"><h3>Ground revenue by category</h3>${[['Bar', f.bar],['Food', f.food],['Shop', f.shop]].map((r) => html`<div className="listrow" key=${r[0]}><span>${r[0]}</span><span className="num">${fmt(r[1])}</span></div>`)}<div className="listrow"><strong>Total</strong><strong className="num">${fmt(ground(f))}</strong></div></section>
+      <section className="card"><div className="row between"><h3>Compare with</h3><select aria-label="Compare with" className="select" value=${cmp} onChange=${(e) => setCmp(e.target.value)}>${FIXTURES.filter((x) => x.id !== sel).map((x) => html`<option key=${x.id} value=${x.id}>${x.opp}</option>`)}</select></div>
+        <div className="listrow muted"><span></span><span>${f.opp} · ${c.opp}</span></div>
+        ${[['Attendance', f.att, c.att, (n) => n],['Tickets', f.tickets, c.tickets, fmt],['Ground revenue', ground(f), ground(c), fmt],['Hospitality', f.hosp, c.hosp, fmt]].map((r) => html`<div className="listrow" key=${r[0]}><span>${r[0]}</span><span className="num">${r[3](r[1])} · ${r[3](r[2])}</span></div>`)}</section>
+    </div>
+  </div>`;
+}
+
+/* ---------- Data ---------- */
+function Data({ ctx }) {
+  const { nav, setNav, S, openSugg, can } = ctx; const tab = nav.tab || 'overview';
+  const holds = S.rights.filter((r) => r.status === 'hold').length;
+  const tabs = [['overview','Overview'],['suggestions','Possible duplicates', openSugg],['uploads','Uploads'],['sources','Sources and imports'],['rights','Rights requests', holds],['suppression','Suppression exports']];
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <div className="tabs" role="tablist" aria-label="Data sections">${tabs.map(([id, l, b]) => html`<button key=${id} className="tab" role="tab" aria-selected=${tab === id} onClick=${() => setNav({ view: 'data', tab: id })}>${l}${b ? html`<span className="pill num">${b}</span>` : null}</button>`)}</div>
+    ${tab === 'overview' && html`<${DataOverview} ctx=${ctx} />`}
+    ${tab === 'suggestions' && html`<${Suggestions} ctx=${ctx} />`}
+    ${tab === 'uploads' && (can('integrations') ? html`<${Upload} ctx=${ctx} />` : html`<${LockNote}>Uploading needs the Integrations permission. Ask your club owner.<//>`)}
+    ${tab === 'sources' && html`<${Sources} ctx=${ctx} />`}
+    ${tab === 'rights' && (can('rights') ? html`<${Rights} ctx=${ctx} />` : html`<${LockNote}>Rights requests need the Data rights permission.<//>`)}
+    ${tab === 'suppression' && html`<${Suppression} ctx=${ctx} />`}
+  </div>`;
+}
+function DataOverview({ ctx }) {
+  const { openSugg, S, setNav } = ctx;
+  return html`<div className="grid">
+    <section className="card"><span className="eyebrow">Records recognised</span><div className="kpi">81%</div><span className="soft">Records linked to a person automatically</span></section>
+    <section className="card"><span className="eyebrow">Possible duplicates</span><div className="kpi">${openSugg}</div><span className="soft">Ranked by how much they matter. Nothing waits on them.</span><button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'data', tab: 'suggestions' })}>Review</button></section>
+    <section className="card"><span className="eyebrow">Imports this week</span><div className="kpi">${S.uploadedSource ? 5 : 4}</div><span className="soft">0 problems. Last: TicketCo, 2 hours ago.</span></section>
+    <section className="card"><span className="eyebrow">Rights requests open</span><div className="kpi">${S.rights.filter((r) => r.status === 'hold').length}</div><span className="soft">Erasures on hold, or with manual tasks left</span><button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'data', tab: 'rights' })}>Open</button></section>
+  </div>`;
+}
+
+function Suggestions({ ctx }) {
+  const { S, update, toast, audit, can, P, nav, go } = ctx;
+  const open = S.suggestions.filter((s) => s.status === 'open');
+  const [sel, setSel] = useState(nav.sel || (open[0] && open[0].id));
+  const s = S.suggestions.find((x) => x.id === sel);
+  const act = (status) => {
+    const prev = structuredClone(S);
+    update((n) => { const x = n.suggestions.find((y) => y.id === s.id); x.status = status; if (status === 'merged') { const p = n.people.find((q) => q.id === s.a); p.sources.push(s.otherSrc.split(' ·')[0] + ' customer (' + s.otherName + ')'); if (p.id === 'dan') p.value.shop += 116; } audit(n, (status === 'merged' ? 'Merged ' : status === 'never' ? 'Marked never merge: ' : 'Rejected: ') + s.title); });
+    toast(status === 'merged' ? 'Merged into one record: ' + P(s.a).name + '.' : status === 'never' ? 'Marked never merge.' : 'Marked as different people.', { label: status === 'merged' ? 'Undo merge' : 'Undo', fn: () => update((n) => { const x = n.suggestions.find((y) => y.id === s.id); x.status = 'open'; const p = n.people.find((q) => q.id === s.a); const pp = prev.people.find((q) => q.id === s.a); p.sources = pp.sources; p.value = pp.value; audit(n, 'Undid decision: ' + s.title); }) });
+  };
+  return html`<div className="row" style=${{ alignItems: 'flex-start', gap: '14px' }}>
+    <section className="card" style=${{ flex: '1 1 280px', padding: 0, gap: 0, overflow: 'hidden' }} aria-label="Suggestions">
+      <div style=${{ padding: '12px 14px' }} className="soft"><strong style=${{ color: 'var(--fg)' }}>${open.length + S.extraSuggestions} waiting.</strong> Most important first.</div>
+      ${open.map((x) => html`<button key=${x.id} onClick=${() => setSel(x.id)} style=${{ display: 'flex', flexDirection: 'column', gap: '3px', textAlign: 'left', padding: '12px 14px', border: 0, borderTop: '1px solid var(--line)', background: x.id === sel ? 'var(--surface)' : 'transparent', boxShadow: x.id === sel ? 'inset 3px 0 0 var(--accent)' : 'none', cursor: 'pointer', color: 'var(--fg)' }}><span className="row between"><strong>${x.title}</strong><span style=${{ color: 'var(--accent-hi)' }}>${x.conf}%</span></span><span className="muted" style=${{ fontSize: '12px' }}>${x.why}</span></button>`)}
+      <div style=${{ padding: '12px 14px', borderTop: '1px solid var(--line)' }} className="muted">${S.extraSuggestions} more, lower priority</div>
+    </section>
+    <section className="card" style=${{ flex: '2 1 460px' }}>
+      ${s && s.status === 'open' ? html`
+        <h2 style=${{ fontSize: '18px' }}>Is ${s.otherName} the same person as ${P(s.a).name}?</h2>
+        <div className="grid" style=${{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+          <div className="card flat" style=${{ padding: '12px' }}><strong>${P(s.a).name}</strong><span className="muted">${P(s.a).sources.join(' · ')}</span><span>${P(s.a).email}</span></div>
+          <div className="card flat" style=${{ padding: '12px' }}><strong>${s.otherName}</strong><span className="muted">${s.otherSrc}</span><span>${s.otherEmail}</span></div>
+        </div>
+        <div className="stack"><strong>Evidence · confidence ${s.conf}%</strong><span className="soft">${s.evidence}</span><span className="soft">Merging links ${s.links} older record to ${P(s.a).name}.</span></div>
+        ${can('identity') ? html`<div className="row"><button className="btn" onClick=${() => act('merged')}>Merge</button><button className="btn ghost" onClick=${() => act('rejected')}>Not the same person</button><button className="btn ghost" onClick=${() => act('never')}>Never merge</button></div>` : html`<${LockNote}>You can see suggestions but not act on them. Ask your club owner for the Identity permission.<//>`}
+        <button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => go({ view: 'person', id: s.a })}>Open ${P(s.a).name}'s record</button>`
+      : html`<p className="soft" style=${{ margin: 0 }}>${open.length ? 'Choose a suggestion from the list.' : 'All shown suggestions are done.'}</p>`}
+    </section>
+  </div>`;
+}
+
+function Upload({ ctx }) {
+  const { S, update, toast, audit, setNav } = ctx; const [step, setStep] = useState(S.uploadedSource ? 5 : 1);
+  const [allergy, setAllergy] = useState('exclude'); const [kids, setKids] = useState(false); const [confirmed, setConfirmed] = useState([true, true, true, true, true, true]);
+  const names = ['Register','Upload','Map columns','Checks','Result'];
+  const cols = [['Full name','Name'],['Email address','Email (identifier)'],['Mobile','Phone (identifier)'],['Postcode','Postcode'],['Happy to hear from the club? (Y/N)','Consent: club news by email'],['Age group','Age band']];
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <ol className="steps" aria-label="Steps">${names.map((n, i) => html`<li key=${n} aria-current=${step === i + 1 ? 'step' : undefined}>${i + 1} ${n}${step > i + 1 ? ' ✓' : ''}</li>`)}</ol>
+    ${step === 1 && html`<section className="card"><h2>Register the source</h2><div className="grid" style=${{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+      <label className="field">Name<input className="input" defaultValue="Summer Fun Day raffle sign-ups" /></label>
+      <label className="field">Type<select className="select"><option>Event sign-up</option><option>Survey</option><option>Raffle</option><option>Volunteer list</option></select></label>
+      <label className="field">One-off or recurring<select className="select"><option>One-off</option><option>Recurring</option></select></label>
+      <label className="field">Purpose<input className="input" defaultValue="Event follow-up" /></label>
+      <label className="field">Lawful basis<select className="select"><option>Consent</option><option>Legitimate interests</option></select></label>
+      <label className="field">Keep for<select className="select"><option>12 months</option><option>6 months</option><option>24 months</option></select></label>
+      <label className="field">Who can see it<select className="select"><option>All staff</option><option>Owners only</option></select></label></div>
+      <button className="btn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setStep(2)}>Next: upload</button></section>`}
+    ${step === 2 && html`<section className="card"><h2>Upload the file</h2><button className="btn ghost" style=${{ alignSelf: 'flex-start' }} onClick=${() => setStep(3)}>Choose file: raffle-signups.xlsx (prototype file, 212 rows)</button>
+      <span className="muted">XLSX or CSV. In the prototype any choice loads the sample raffle file.</span></section>`}
+    ${step === 3 && html`<section className="card"><h2>Map the columns</h2><p className="soft" style=${{ margin: 0 }}>Suggestions are made automatically. Confirm each one before anything loads.</p>
+      <div className="tablewrap"><table style=${{ minWidth: '620px' }}><thead><tr><th>Column in file</th><th>Suggested meaning</th><th>Confirm</th></tr></thead><tbody>
+        ${cols.map((c, i) => html`<tr key=${c[0]}><td><strong>${c[0]}</strong></td><td>${c[1]}</td><td><label className="row"><input type="checkbox" checked=${confirmed[i]} onChange=${(e) => setConfirmed((x) => x.map((v, j) => j === i ? e.target.checked : v))} /> Confirmed</label></td></tr>`)}
+        <tr style=${{ background: '#1c1917' }}><td><strong>Any allergies</strong></td><td><span style=${{ color: 'var(--warn)' }}>Possible health data (special category)</span></td><td><select aria-label="Allergies column" className="select" value=${allergy} onChange=${(e) => setAllergy(e.target.value)}><option value="exclude">Leave it out</option><option value="purpose">Keep, with a purpose</option></select></td></tr>
+      </tbody></table></div>
+      ${allergy === 'purpose' && html`<label className="field">Purpose for allergy data<input className="input" placeholder="For example: catering at next year's fun day" /></label>`}
+      <label className="field" style=${{ maxWidth: '640px' }}>Wording shown for "Happy to hear from the club?"<input className="input" defaultValue="Tick if you're happy for Ravensmere Town FC to email you about future events" /></label>
+      <div className="row"><button className="btn" disabled=${!confirmed.every(Boolean)} onClick=${() => setStep(4)}>Next: checks</button><button className="btn ghost" onClick=${() => setStep(2)}>Back</button></div></section>`}
+    ${step === 4 && html`<section className="card warnbox" role="alertdialog" aria-label="Children check"><h2 style=${{ color: '#fde68a' }}>This file looks like it includes children</h2>
+      <p className="soft" style=${{ margin: 0 }}>About 40% of rows look like under-18s (age group "Under 12" or "Under 16"), which is over the 10% limit. Confirm the lawful basis and how parental consent was collected before loading.</p>
+      <label className="row"><input type="checkbox" checked=${kids} onChange=${(e) => setKids(e.target.checked)} /> Parents signed up on behalf of their children, and gave consent on the sign-up sheet.</label>
+      <div className="row"><button className="btn" disabled=${!kids} onClick=${() => { update((n) => { n.uploadedSource = true; n.extraSuggestions += 6; audit(n, 'Uploaded Summer Fun Day raffle sign-ups (212 rows); children check confirmed'); }); setStep(5); toast('Loaded: 131 matched, 81 new.'); }}>Confirm and load</button><button className="btn ghost" onClick=${() => { setStep(1); toast('Upload cancelled. Nothing was loaded.'); }}>Cancel upload</button></div>
+      <span className="muted" style=${{ fontSize: '12px' }}>Your confirmation is recorded in the audit log.</span></section>`}
+    ${step === 5 && html`<section className="card"><h2>Result</h2><div className="row" style=${{ gap: '24px' }}><span><strong className="kpi">131</strong> matched existing people</span><span><strong className="kpi">81</strong> new people</span><span><strong className="kpi">0</strong> errors</span></div>
+      <button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setNav({ view: 'data', tab: 'suggestions' })}>6 new possible duplicates (they can wait)</button>
+      <span className="muted">Now available as a segment rule: "Is in source: Summer Fun Day raffle".</span></section>`}
+  </div>`;
+}
+
+function Sources({ ctx }) {
+  const { S, can, toast } = ctx;
+  const rows = [['TicketCo','Connector · hourly','2 hours ago','OK'],['Shopify','CSV upload','3 Oct','OK'],['Mixlr','CSV upload','30 Sep','OK'],['Club website forms','WordPress plugin · live','Today 07:12','OK'],['Game Changers','Miggle product events · live','Today 06:40','OK']].concat(S.uploadedSource ? [['Summer Fun Day raffle','Ad hoc upload · one-off','Today','OK']] : []);
+  return html`<div className="card"><div className="row between"><h2>Sources and imports</h2>${can('integrations') ? html`<button className="btn ghost small" onClick=${() => toast('Connecting a new source opens here (prototype).')}>Connect a source</button>` : null}</div>
+    <div className="tablewrap"><table style=${{ minWidth: '600px' }}><thead><tr><th>Source</th><th>How</th><th>Last import</th><th>Status</th></tr></thead><tbody>${rows.map((r) => html`<tr key=${r[0]}><td><strong>${r[0]}</strong></td><td className="soft">${r[1]}</td><td className="num">${r[2]}</td><td><span className="chip ok">${r[3]}</span></td></tr>`)}</tbody></table></div>
+    <span className="muted" style=${{ fontSize: '12px' }}>Failures go to Miggle or Touchline first, and reach the club only when the club must act.</span></div>`;
+}
+
+function Suppression({ ctx }) {
+  const { S, toast, update, audit } = ctx;
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <section className="card"><h2>Tools the CRM isn't connected to</h2><p className="soft" style=${{ margin: 0 }}>The CRM can't enforce choices in these tools. Export the suppression list and load it there. The club remains responsible.</p>
+      ${[['Paper raffle list','Post and text'],['Committee WhatsApp broadcast','WhatsApp']].map((t) => html`<div className="listrow" key=${t[0]}><span><strong>${t[0]}</strong> <span className="muted">· ${t[1]}</span></span><span className="row"><span className="muted">3 opt-outs since last export</span><button className="btn ghost small" onClick=${() => { update((n) => audit(n, 'Exported suppression list for ' + t[0])); toast('Suppression list prepared. In the real product this downloads a CSV.'); }}>Export suppression list</button></span></div>`)}</section>
+    <section className="card flat"><h2>Suppression list</h2>${S.suppressions.map((s, i) => html`<div className="listrow" key=${i}><span>${s.addr} <span className="muted">· ${s.ch}</span></span><span className="muted">${s.why} · ${s.when}</span></div>`)}</section>
+  </div>`;
+}
+
+function Rights({ ctx }) {
+  const { S, nav, setNav, P, update, toast, audit, role, setModal } = ctx;
+  const r = S.rights.find((x) => x.id === (nav.id || 'r-tom')) || S.rights[0];
+  const canCancel = ['owner','partner'].includes(USERS[role].role);
+  const cancel = () => setModal(html`<${CancelErasure} ctx=${ctx} r=${r} close=${() => setModal(null)} />`);
+  const badge = (st) => st === 'Done' || st === 'Confirmed' ? 'ok' : st === 'To do' ? 'warn' : st === 'Waiting' ? 'info' : '';
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <section className="card flat"><h2>Requests</h2><div className="tablewrap"><table style=${{ minWidth: '620px' }}><thead><tr><th>Person</th><th>Type</th><th>Received</th><th>Legal deadline</th><th>Status</th></tr></thead>
+      <tbody>${S.rights.map((x) => html`<tr key=${x.id} className=${'click' + (x.id === r.id ? ' sel' : '')} onClick=${() => setNav({ view: 'data', tab: 'rights', id: x.id })}><td><strong>${P(x.person).name}</strong></td><td>${x.type}</td><td className="num">${x.received}</td><td className="num">${x.due}</td><td>${x.status === 'hold' ? html`<span className="chip warn">On hold until ${x.holdUntil}</span>` : x.status === 'cancelled' ? html`<span className="chip">Cancelled</span>` : x.status === 'erased' ? html`<span className="chip ok">Erased</span>` : html`<span className="chip ok">Sent</span>`}</td></tr>`)}</tbody></table></div></section>
+    ${r.type === 'Erasure' ? html`<section className="card"><div className="row between">
+        <div className="stack"><h2 style=${{ fontSize: '20px' }}>Erasure: ${P(r.person).name}</h2>
+          ${r.status === 'hold' && html`<strong style=${{ color: 'var(--warn)' }}>On hold. Permanently erased on ${r.holdUntil} November.</strong><span className="soft">${P(r.person).name.split(' ')[0]} is already hidden from lists, search and segments, and excluded from every send.</span>`}
+          ${r.status === 'cancelled' && html`<strong style=${{ color: 'var(--accent-hi)' }}>Cancelled: ${r.reason}. ${P(r.person).name.split(' ')[0]} has been told.</strong>`}
+          ${r.status === 'erased' && html`<strong style=${{ color: 'var(--ok)' }}>Erased ${r.holdUntil}. Completion record kept: what was erased and when, holding none of ${P(r.person).name.split(' ')[0]}'s data.</strong>`}
+        </div>
+        ${r.status === 'hold' && html`<div className="row">${canCancel ? html`<button className="btn danger" onClick=${cancel}>Cancel erasure</button>` : null}<button className="btn ghost small" onClick=${() => { update((n) => { const x = n.rights.find((y) => y.id === r.id); x.status = 'erased'; x.checklist.forEach((c) => { if (c.status === 'Waiting') c.status = 'Done'; }); n.people.find((p) => p.id === r.person).status = 'erased'; audit(n, 'Erasure completed at end of hold: ' + n.people.find((p) => p.id === r.person).name, 'System'); }); toast('Hold ended. Keys destroyed and data erased.'); }}>Skip to end of hold (demo)</button></div>`}
+      </div>
+      ${!canCancel && r.status === 'hold' ? html`<${LockNote}>Only the club owner, a partner admin or Miggle can cancel an erasure. You can tick off manual tasks.<//>` : null}
+      <div className="tablewrap"><table style=${{ minWidth: '640px' }}><thead><tr><th>Source</th><th>How</th><th>Status</th></tr></thead><tbody>
+        ${r.checklist.map((c, i) => html`<tr key=${c.src}><td><strong>${c.src}</strong></td><td className="soft">${c.how}</td><td>${c.manual && r.status !== 'cancelled' ? html`<label className="row"><input type="checkbox" checked=${c.status === 'Done'} onChange=${(e) => update((n) => { const x = n.rights.find((y) => y.id === r.id).checklist[i]; x.status = e.target.checked ? 'Done' : 'To do'; audit(n, (e.target.checked ? 'Ticked off: ' : 'Unticked: ') + c.src + ' for ' + P(r.person).name); })} /> <span className=${'chip ' + badge(c.status)}>${c.status}</span></label>` : html`<span className=${'chip ' + badge(c.status)}>${c.status}</span>`}</td></tr>`)}
+      </tbody></table></div></section>`
+    : html`<section className="card"><h2>${r.type}: ${P(r.person).name}</h2><span className="soft">Copy of data sent on 21 Oct. Nothing left to do.</span></section>`}
+  </div>`;
+}
+function CancelErasure({ ctx, r, close }) {
+  const { update, toast, audit, P } = ctx; const [why, setWhy] = useState(''); const [ex, setEx] = useState('');
+  const reasons = [['withdrawn', P(r.person).name.split(' ')[0] + ' withdrew the request'],['unverified', "The request wasn't verified, or was fraudulent"],['error', 'It was made in error (for example, the wrong person was selected)'],['legal', 'A legal exemption applies']];
+  const label = { withdrawn: 'withdrawn by the requester', unverified: 'not verified', error: 'made in error', legal: 'legal exemption (' + ex + ')' };
+  return html`<${Modal} title=${'Cancel ' + P(r.person).name + "'s erasure?"} onClose=${close} danger=${true}>
+    <fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="stack"><legend className="soft" style=${{ marginBottom: '6px' }}>Reason (required)</legend>
+      ${reasons.map(([k, l]) => html`<label className="row" key=${k}><input type="radio" name="why" checked=${why === k} onChange=${() => setWhy(k)} /> ${l}</label>`)}</fieldset>
+    ${why === 'legal' && html`<label className="field">Name the exemption<input className="input" value=${ex} onChange=${(e) => setEx(e.target.value)} placeholder="For example: needed for a legal claim" /></label>`}
+    <p className="muted" style=${{ margin: 0 }}>You can't cancel because the club would like to keep the data. ${P(r.person).name.split(' ')[0]} will be told.</p>
+    <div className="row"><button className="btn" disabled=${!why || (why === 'legal' && !ex)} onClick=${() => { update((n) => { const x = n.rights.find((y) => y.id === r.id); x.status = 'cancelled'; x.reason = label[why]; n.people.find((p) => p.id === r.person).status = 'active'; audit(n, 'Cancelled erasure for ' + P(r.person).name + ': ' + label[why]); }); close(); toast('Erasure cancelled. ' + P(r.person).name.split(' ')[0] + ' has been told.'); }}>Cancel erasure</button><button className="btn ghost" onClick=${close}>Keep the erasure</button></div>
+  <//>`;
+}
+
+/* ---------- Settings ---------- */
+function Settings({ ctx }) {
+  const { S, update, toast, audit, role } = ctx; const admin = ['owner','partner'].includes(USERS[role].role);
+  const [tab, setTab] = useState(admin ? 'users' : 'digest');
+  const tabs = (admin ? [['users','Users and permissions']] : []).concat([['digest','My weekly digest']]).concat(admin ? [['audit','Audit log']] : []);
+  const toggle = (u, k, v) => { update((n) => { n.grants[u][k] = v; audit(n, (v ? 'Granted ' : 'Removed ') + GRANTS.find((g) => g[0] === k)[1] + ' for ' + USERS[u].name); }); toast((v ? 'Granted' : 'Removed') + ': ' + GRANTS.find((g) => g[0] === k)[1] + ' for ' + USERS[u].name.split(' ')[0] + '.' + (role === 'touchline' ? ' Sam Patel (owner) has been emailed about this change.' : '') + (v && RISKY.includes(k) && !S.mfa[u] ? ' They will set up a second sign-in step before using it.' : '')); };
+  return html`<div className="stack" style=${{ gap: '14px' }}>
+    <div className="tabs" role="tablist" aria-label="Settings">${tabs.map(([id, l]) => html`<button key=${id} className="tab" role="tab" aria-selected=${tab === id} onClick=${() => setTab(id)}>${l}</button>`)}</div>
+    ${tab === 'users' && html`<div className="grid">
+      <section className="card"><h2>Sam Patel</h2><span className="soft">Club owner · every permission · ${S.mfa.sam ? 'second step set up' : 'second step not set up yet'}</span></section>
+      <section className="card flat"><h2>Invite someone</h2><span className="soft">CRM access only ever comes from an invite here. A WordPress account on the club's site never gives CRM access on its own.</span>
+        <div className="row"><input aria-label="Email to invite" className="input" style=${{ flex: '1 1 220px' }} placeholder="alex.kent@example.com" /><select aria-label="Role" className="select"><option>Club staff</option><option>Commercial staff</option></select><button className="btn ghost" onClick=${() => toast('Invite sent (prototype). Once accepted, the Club CRM menu appears for them in WordPress too.')}>Send invite</button></div></section>
+      ${['jo','chris'].map((u) => html`<section className="card" key=${u}><h2>${USERS[u].name}</h2><span className="soft">${USERS[u].label}</span>
+        <fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="stack"><legend className="muted" style=${{ marginBottom: '6px' }}>Permissions</legend>
+          ${GRANTS.map(([k, l]) => { const on = k === 'values' && u === 'jo' ? S.grants[u][k] !== false : !!S.grants[u][k]; return html`<label className="row" key=${k}><input type="checkbox" checked=${on} onChange=${(e) => toggle(u, k, e.target.checked)} /> ${l}${RISKY.includes(k) ? html` <span className="muted" style=${{ fontSize: '12px' }}>· needs a second sign-in step</span>` : null}</label>`; })}</fieldset>
+        ${needsMfa(S, u) && !S.mfa[u] ? html`<div className="locknote" style=${{ borderColor: '#b45309', color: '#fde68a' }}>${USERS[u].name.split(' ')[0]} will set up a second sign-in step before using these permissions.</div>` : null}
+      </section>`)}
+    </div>`}
+    ${tab === 'digest' && html`<section className="card" style=${{ maxWidth: '640px' }}><h2>My weekly digest</h2>
+      <label className="field">Day and time<select className="select" style=${{ maxWidth: '260px' }}><option>Monday, 8am</option><option>Friday, 8am</option><option>Every weekday, 8am</option></select></label>
+      <label className="row"><input type="checkbox" checked=${S.digestOnlyNeeded} onChange=${(e) => update((n) => { n.digestOnlyNeeded = e.target.checked; })} /> Only email me when something needs me</label>
+      ${admin && html`<fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="stack"><legend className="soft" style=${{ marginBottom: '6px' }}>Monthly sponsor reports</legend>
+        <label className="row"><input type="radio" name="rep" checked=${!S.reportsAuto} onChange=${() => update((n) => { n.reportsAuto = false; })} /> Wait for my approval</label>
+        <label className="row"><input type="radio" name="rep" checked=${S.reportsAuto} onChange=${() => update((n) => { n.reportsAuto = true; })} /> Send automatically</label></fieldset>`}
+      <span className="muted" style=${{ fontSize: '12px' }}>Open "Inbox: weekly digest" in the bar at the top to see the email.</span></section>`}
+    ${tab === 'audit' && html`<section className="card"><h2>Audit log</h2><span className="muted" style=${{ fontSize: '12px' }}>Actions by Miggle and Touchline appear here too.</span>${S.audit.map((a, i) => html`<div className="listrow" key=${i}><span className="muted num" style=${{ width: '140px' }}>${a.when}</span><span style=${{ width: '120px' }}>${a.who}</span><span style=${{ flex: '1 1 260px' }}>${a.what}</span></div>`)}</section>`}
+  </div>`;
+}
+
+/* ---------- Digest ---------- */
+function Digest({ ctx }) {
+  const { go, setRole } = ctx; const [who, setWho] = useState('sam');
+  const items = digestItems(ctx, who); const first = USERS[who].name.split(' ')[0];
+  const all = ctx.S.digestOnlyNeeded && !items.length;
+  return html`<div className="paperwrap"><div className="mail">
+    <div className="row between"><div className="mailhead"><span><strong>From:</strong> Ravensmere Town FC CRM</span><span><strong>To:</strong> ${USERS[who].name}</span><span><strong>Subject:</strong> Ravensmere Town FC: ${items.length ? items.length + ' thing' + (items.length > 1 ? 's' : '') + ' need' + (items.length > 1 ? '' : 's') + ' you this week' : 'nothing needs you this week'}</span><span><strong>Sent:</strong> Monday 27 October, 8:00</span></div>
+      <label className="field">Show the digest for<select className="select" value=${who} onChange=${(e) => setWho(e.target.value)}><option value="sam">Sam Patel (owner)</option><option value="jo">Jo Whitfield (commercial)</option><option value="chris">Chris Oduya (club staff)</option></select></label></div>
+    ${all ? html`<p className="soft">Sam chose "Only email me when something needs me", so no digest was sent this week.</p>` : html`<div className="mailbody">
+      <div className="clubhead" style=${{ justifyContent: 'flex-start' }}><${Crest} size=${36} /><strong style=${{ fontSize: '17px' }}>Ravensmere Town FC · your week</strong></div>
+      <div style=${{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <p style=${{ margin: 0, fontSize: '16px' }}>Morning ${first}. ${items.length ? (items.length === 1 ? 'One thing needs' : items.length + ' things need') + ' you this week.' : 'Nothing needs you this week.'}</p>
+        ${items.map((i) => html`<div className="mailitem" key=${i.title}><strong style=${{ fontSize: '16px' }}>${i.title}</strong><span style=${{ color: 'var(--ink-soft)' }}>${i.detail}</span><button className="pbtn" style=${{ alignSelf: 'flex-start', minHeight: '40px', fontSize: '14px' }} onClick=${() => { setRole(who); go(i.to); }}>${i.cta}</button></div>`)}
+        ${who === 'sam' && ctx.S.uploadedSource && html`<div style=${{ borderTop: '1px solid var(--paper-line)', paddingTop: '14px' }} className="stack"><span style=${{ fontSize: '12px', fontWeight: 700, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Can wait</span><span style=${{ color: 'var(--ink-soft)' }}>6 possible duplicate records from the raffle upload. Nothing is held up by these.</span><button className="linkbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => { setRole('sam'); go({ view: 'data', tab: 'suggestions' }); }}>Look when you have time</button></div>`}
+        <div style=${{ borderTop: '1px solid var(--paper-line)', paddingTop: '14px' }} className="stack"><span style=${{ fontSize: '12px', fontWeight: 700, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>All fine</span><span style=${{ color: 'var(--ink-soft)' }}>All ${ctx.S.uploadedSource ? 5 : 4} imports ran this week. 3 new supporters, 0 problems.</span></div>
+      </div>
+      <div style=${{ background: '#f9fafb', padding: '14px 22px', fontSize: '12px', color: 'var(--ink-muted)' }}>You get this every Monday at 8am. <button className="linkbtn" onClick=${() => { setRole(who === 'chris' ? 'chris' : who); go({ view: 'settings' }); }}>Change what you get</button>. Links sign you in automatically.</div>
+    </div>`}
+  </div></div>`;
+}
+
+/* ---------- Unsubscribe ---------- */
+function Unsubscribe({ ctx }) {
+  const { S, update, audit, toast, setApp } = ctx; const addr = 'hale.family@example.com';
+  const done = !S.people.find((p) => p.id === 'karen').consents.news.email.on;
+  const set = (on) => { update((n) => { n.people.filter((p) => p.email === addr).forEach((p) => { p.consents.news.email = { on, src: on ? 'Resubscribed from unsubscribe page' : 'Email unsubscribe link (applies to this address)', date: '27 Oct' }; }); if (!on) n.suppressions.unshift({ addr, ch: 'Email · club news', why: 'Unsubscribed by email link', when: '27 Oct' }); else n.suppressions = n.suppressions.filter((s) => s.addr !== addr); audit(n, (on ? 'Resubscribed ' : 'Unsubscribed ') + addr + ' from club news by email', 'Supporter (email link)'); }); toast(on ? 'Subscribed again.' : 'Unsubscribed. Staff records for Karen and Josh Hale now show it.'); };
+  return html`<div className="paperwrap"><div className="phone">
+    <div className="clubhead"><div className="row"><${Crest} size=${36} /><strong style=${{ fontSize: '17px' }}>Ravensmere Town FC</strong></div></div>
+    <div className="pbody">
+      ${!done ? html`<h1 style=${{ fontSize: '24px' }}>Stop matchday emails?</h1><p style=${{ margin: 0, fontSize: '16px', color: 'var(--ink-soft)' }}>You'll stop getting club news emails from Ravensmere Town FC at <strong>h•••@example.com</strong>.</p>
+        <button className="pbtn" onClick=${() => set(false)}>Unsubscribe</button><p style=${{ margin: 0, fontSize: '14px', color: 'var(--ink-muted)' }}>This applies to the email address, so everyone who uses it stops getting this kind of email.</p>`
+      : html`<h1 style=${{ fontSize: '24px' }}>You're unsubscribed</h1><p style=${{ margin: 0, fontSize: '16px', color: 'var(--ink-soft)' }}>You won't get club news emails from Ravensmere Town FC at this address. You'll still get ticket confirmations and other messages you need.</p><button className="pbtn line" onClick=${() => set(true)}>I didn't mean to: subscribe again</button>`}
+      <button className="linkbtn" style=${{ alignSelf: 'flex-start', fontSize: '16px' }} onClick=${() => setApp('portal')}>Choose exactly what you get instead</button>
+      <p style=${{ margin: 0, fontSize: '13px', color: 'var(--ink-muted)' }}>No sign-in needed. Reached from the link in Karen Hale's matchday email.</p>
+    </div></div></div>`;
+}
+
+/* ---------- Portal ---------- */
+function Portal({ ctx, embedded }) {
+  const Frame = (kids) => embedded ? html`<div className="embedframe paper">${kids}</div>` : html`<div className="paperwrap"><div className="phone">${kids}</div></div>`;
+  const { S, update, toast, audit } = ctx; const [tab, setTab] = useState('prefs'); const karen = S.people.find((p) => p.id === 'karen');
+  const req = S.rights.find((r) => r.id === 'r-karen');
+  const [child, setChild] = useState(''); const [how, setHow] = useState('Junior season ticket');
+  if (!S.portalSignedIn) return Frame(html`
+    <div className="clubhead"><div className="row"><${Crest} size=${36} /><strong style=${{ fontSize: '17px' }}>Ravensmere Town FC</strong></div></div>
+    <div className="pbody"><h1 style=${{ fontSize: '24px' }}>Sign in</h1><p style=${{ margin: 0, color: 'var(--ink-soft)', fontSize: '15px' }}>See and change what Ravensmere Town FC sends you, and what it holds about you.</p>
+      ${['Email me a sign-in link','Continue with Google','Use my phone'].map((l, i) => html`<button key=${l} className=${'pbtn' + (i ? ' line' : '')} onClick=${() => update((n) => { n.portalSignedIn = true; }) || ctx.track('Portal · Preferences')}>${l}</button>`)}
+      <p style=${{ margin: 0, fontSize: '13px', color: 'var(--ink-muted)' }}>In the prototype, any choice signs in as Karen Hale.</p></div>`);
+  const toggle = (p, c, on) => { update((n) => { n.people.find((x) => x.id === 'karen').consents[p][c] = { on, src: 'Supporter portal', date: '27 Oct' }; audit(n, 'Karen Hale changed ' + PURPOSE_PORTAL[p].toLowerCase() + ' by ' + CH_PORTAL[c].toLowerCase() + ' to ' + (on ? 'yes' : 'no') + ' in the portal', 'Karen Hale (portal)'); }); toast('Saved. ' + (on ? "You'll get " : "You won't get ") + PURPOSE_PORTAL[p].toLowerCase() + ' by ' + CH_PORTAL[c].toLowerCase() + '.'); };
+  return Frame(html`
+    <div className="clubhead"><div className="row"><${Crest} size=${36} /><strong style=${{ fontSize: '17px' }}>Ravensmere Town FC</strong></div><span style=${{ fontSize: '14px' }}>Karen Hale</span></div>
+    <div className="ptabs" role="tablist" aria-label="Portal">${[['prefs','Preferences'],['family','My family'],['data','My data']].map(([id, l]) => html`<button key=${id} className="ptab" role="tab" aria-selected=${tab === id} onClick=${() => { setTab(id); ctx.track('Portal · ' + l); if (id === 'family') update((n) => { n.flags.family = true; }); }}>${l}</button>`)}</div>
+    <div className="pbody">
+      ${tab === 'prefs' && html`<h1 style=${{ fontSize: '22px' }}>What you hear from us</h1><p style=${{ margin: 0, color: 'var(--ink-soft)', fontSize: '15px' }}>Choose what you'd like to get, and how. Ticket confirmations and other messages you need always arrive.</p>
+        ${PURPOSES.map(([p]) => html`<fieldset className="pfield" key=${p}><legend>${PURPOSE_PORTAL[p]}</legend>${CHANNELS.map(([c]) => html`<label className="swrow" key=${c}><span>${CH_PORTAL[c]}</span><input type="checkbox" role="switch" checked=${karen.consents[p][c].on} onChange=${(e) => toggle(p, c, e.target.checked)} /></label>`)}</fieldset>`)}`}
+      ${tab === 'family' && html`<h1 style=${{ fontSize: '22px' }}>My family</h1>
+        <div className="pfield" style=${{ gap: '8px' }}><div className="row between"><strong style=${{ fontSize: '18px' }}>Josh Hale</strong><span style=${{ background: 'var(--paper-tint)', borderRadius: '999px', padding: '3px 10px', fontSize: '13px' }}>Age 14</span></div>
+          <p style=${{ margin: 0, color: 'var(--ink-soft)' }}>You look after Josh's preferences. We never send Josh offers or adverts, because he's under 18. He still gets ticket and matchday information.</p>
+          <p style=${{ margin: 0, color: 'var(--ink-soft)' }}>Josh can also sign in himself to see his own details, because he's 13 or over.</p></div>
+        ${S.childRequests.map((c) => html`<div className="pfield" key=${c.child}><strong>${c.child}</strong><span style=${{ color: 'var(--ink-soft)' }}>${c.status === 'pending' ? 'Waiting for the club to confirm.' : c.status === 'confirmed' ? 'Confirmed. You can now manage their preferences.' : 'The club couldn’t confirm this link. They’ve emailed you.'}</span></div>`)}
+        <div className="pfield" style=${{ borderStyle: 'dashed', gap: '10px' }}><strong style=${{ fontSize: '17px' }}>Add my child</strong>
+          <label className="stack" style=${{ gap: '4px', fontSize: '15px' }}>Child's name<input className="input paper" value=${child} onChange=${(e) => setChild(e.target.value)} placeholder="For example Ella Hale" /></label>
+          <label className="stack" style=${{ gap: '4px', fontSize: '15px' }}>How they're connected to the club<select className="select paper" value=${how} onChange=${(e) => setHow(e.target.value)}><option>Junior season ticket</option><option>Junior match tickets</option><option>Plays for a junior team</option><option>Other</option></select></label>
+          <button className="pbtn" disabled=${!child.trim()} onClick=${() => { update((n) => { n.childRequests.push({ child: child.trim(), how, parent: 'karen', status: 'pending' }); audit(n, 'Parent link requested by Karen Hale for ' + child.trim(), 'Karen Hale (portal)'); }); setChild(''); toast('Request sent. The club will confirm it.'); }}>Send request to the club</button>
+          <p style=${{ margin: 0, fontSize: '13px', color: 'var(--ink-muted)' }}>The club will confirm this link before you can manage their preferences.</p></div>`}
+      ${tab === 'data' && html`<h1 style=${{ fontSize: '22px' }}>What we hold about you</h1>
+        <ul style=${{ margin: 0, paddingLeft: '20px', color: 'var(--ink-soft)', lineHeight: 1.7 }}><li>Your name, email address and postcode</li><li>Tickets you've bought (12 this season)</li><li>Shop orders (2)</li><li>Emails you've opened from us</li><li>Your choices about what you hear from us</li></ul>
+        <button className="linkbtn" style=${{ alignSelf: 'flex-start', fontSize: '15px' }} onClick=${() => toast('Correcting your name or postcode opens here (prototype).')}>Correct my name or postcode</button>
+        <h2 style=${{ fontSize: '19px' }}>Your data rights</h2>
+        <button className="pbtn line" onClick=${() => toast("We'll email you a file with everything we hold, usually within a day.")}>Download my data</button>
+        ${!req || req.status !== 'hold' ? html`<button className="pbtn red" onClick=${() => { update((n) => { n.rights = n.rights.filter((r) => r.id !== 'r-karen'); n.rights.unshift({ id: 'r-karen', person: 'karen', type: 'Erasure', received: '27 Oct', due: '27 Nov', holdUntil: '3 Nov', status: 'hold', reason: '', checklist: [{ src: 'TicketCo', how: 'Sent through its API', status: 'Done', manual: false },{ src: 'Shopify', how: 'No erasure API: manual task', status: 'To do', manual: true },{ src: 'Sign-in account and email delivery logs', how: 'Automatic at the end of the hold', status: 'Waiting', manual: false }] }); n.people.find((p) => p.id === 'karen').status = 'pending'; audit(n, 'Erasure requested by Karen Hale', 'Karen Hale (portal)'); }); toast('Request received. Your data will be erased on 3 November.'); }}>Ask the club to delete my data</button>
+          <p style=${{ margin: 0, fontSize: '14px', color: 'var(--ink-muted)' }}>We'll stop using your data straight away, then permanently erase it after 7 days. You can change your mind until then.</p>`
+        : html`<div role="status" style=${{ background: '#fef2f2', border: '1px solid #b91c1c', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}><strong style=${{ color: '#7f1d1d' }}>Your data will be permanently erased on 3 November.</strong><span style=${{ color: 'var(--ink-soft)' }}>Until then you can cancel this request. We've already stopped sending you anything except what you need.</span>
+            <button className="pbtn plain" onClick=${() => { update((n) => { const r = n.rights.find((x) => x.id === 'r-karen'); r.status = 'cancelled'; r.reason = 'withdrawn by the requester'; n.people.find((p) => p.id === 'karen').status = 'active'; audit(n, 'Karen Hale cancelled her erasure request', 'Karen Hale (portal)'); }); toast('Request cancelled. Nothing will be deleted.'); }}>Cancel my request</button></div>`}`}
+    </div>`);
+}
+
+/* ---------- Club website (what visitors see): Touchline "Vardy"-style layout ---------- */
+function Website({ ctx }) {
+  const { S, update, toast, audit } = ctx;
+  const [page, setPage] = useState('home'); const [push, setPush] = useState('ask');
+  const [name, setName] = useState(''); const [email, setEmail] = useState(''); const [pc, setPc] = useState(''); const [tick, setTick] = useState(false);
+  const form = S.wp.forms.find((f) => f.id === 'newsletter');
+  const sponsors = ['nair','coop','weald','lambert','plough','dental'];
+  useEffect(() => { update((n) => { n.web.impressions += 1; if (n.wp.forms[0].wording !== DEFAULT_WORDING) n.flags.siteAfterWording = true; }); }, []);
+  const clickSponsor = (id) => { if (id === 'nair') update((n) => { n.web.clicks += 1; }); toast('Click recorded for ' + S.orgs[id].name + "'s sponsor report."); };
+  const submit = (e) => {
+    e.preventDefault();
+    const nm = name.trim(); const em = email.trim().toLowerCase();
+    if (!form.feed) { toast("Thanks for signing up. (Prototype: this form isn't connected to the CRM, so nothing was sent.)"); }
+    else {
+      const existing = S.people.find((p) => p.email.toLowerCase() === em);
+      update((n) => {
+        n.wp.last = 'Mon 27 Oct, just now';
+        if (existing) { n.extraSuggestions += 1; audit(n, 'Website sign-up matched an existing email (' + existing.name + '): added as a possible duplicate', 'Club website'); }
+        else {
+          const c = cons('', ''); c[form.purpose].email = { on: true, src: 'Club website, ' + form.name + ': "' + form.wording + '"', date: '27 Oct' };
+          n.people.push(person('web' + Date.now(), nm, { email: em, postcode: pc.trim().toUpperCase(), age: 'unknown', ageNote: 'No age signal yet', lastSeen: '27 Oct', consents: c, sources: ['WordPress newsletter sign-up'], activity: [['Mon 27 Oct', 'Website', 'Signed up to the newsletter']] }));
+          n.peopleBase += 1; audit(n, 'Website sign-up: ' + nm, 'Club website');
+        }
+      });
+      toast(existing ? 'Thanks for signing up! (Prototype: this email matches ' + existing.name + ', so it became a possible duplicate. Web forms never merge automatically.)' : 'Thanks for signing up! (Prototype: ' + nm + " is now in the CRM's Supporters list, with this form's consent wording as evidence.)");
+    }
+    setName(''); setEmail(''); setPc(''); setTick(false);
+  };
+  const util = ['FAQs','Tickets','Contact us','Accessibility','Season tickets','Vacancies'];
+  const nav = [['home','News'],['home','Teams'],['home','Matches'],['home','Club'],['home','Sponsorship'],['home','Community'],['prefs','My preferences']];
+  const news = [['Match report','Report: Ravensmere Town FC 0–2 Marden Athletic','2 days ago'],['Matchday','Preview: Lewes Road at Mere Lane','5 hours ago'],['Community','Summer Fun Day raffle winners announced','1 day ago'],['Club','Volunteers wanted for the 2025/26 season','3 days ago']];
+  const homes = [['Men’s First Team','Lewes Road','Sat 1 Nov','15:00','LR'],['Women’s First Team','Ashdown Vale Ladies','Sun 2 Nov','14:00','AV'],['Under 18s','Hollin Bridge U18','Wed 5 Nov','19:30','HB']];
+  return html`<div className="sitewrap"><div className="site">
+    <div className="utilbar">${util.map((u) => html`<button key=${u} onClick=${() => toast(u + ' (prototype).')}>${u}</button>`)}</div>
+    <header className="sitehead2">
+      <button onClick=${() => setPage('home')} aria-label="Ravensmere Town FC home" style=${{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}><${Crest} size=${64} /></button>
+      <nav aria-label="Club website">${nav.map(([to, l]) => html`<button key=${l} aria-current=${(to === 'prefs' && page === 'prefs') || (l === 'News' && page === 'home') ? 'page' : undefined} onClick=${() => setPage(to) || (to === 'prefs' && ctx.track('Website · My preferences'))}>${l}</button>`)}</nav>
+      <button className="mainsponsor" onClick=${() => clickSponsor('nair')}><small>Main sponsor</small><strong>Nair & Co Accountants</strong></button>
+    </header>
+    ${push === 'ask' && html`<div className="pushbar"><span>Get matchday alerts from Ravensmere Town FC in your browser?</span><span className="row"><button className="sbtn" onClick=${() => { setPush('on'); toast('(Prototype) Browser notifications switched on. Manage them in My preferences.'); }}>Allow</button><button className="sbtn light" onClick=${() => setPush('no')}>Not now</button></span></div>`}
+    ${page === 'prefs' ? html`<div style=${{ padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}><div className="secthead" style=${{ padding: 0 }}><h2>My preferences</h2></div><p style=${{ margin: 0, color: '#374151' }}>Choose what Ravensmere Town FC sends you, without leaving the club's website. (The supporter portal, embedded by the CRM plugin.)</p><${Portal} ctx=${ctx} embedded=${true} /></div>`
+    : html`<div>
+      <div className="herogrid">
+        <article className="feature"><div className="photo" aria-hidden="true">[Match photo]</div><div className="cap"><span className="kicker">Match report</span><h1>Report: Ravensmere Town FC 0–2 Marden Athletic</h1><span style=${{ fontSize: '14px', color: '#e5e7eb' }}>Two second-half goals settled it for the visitors in front of 398 at Mere Lane. · 2 days ago</span></div></article>
+        <div className="matchcol">
+          <section className="matchcard" aria-label="Next fixture"><div className="mh"><span>Men's First Team</span><span>Next fixture</span></div>
+            <div className="teamrow" style=${{ paddingTop: '10px' }}><${Crest} size=${30} />Ravensmere Town FC<span className="score" style=${{ fontSize: '16px' }}>15:00</span></div>
+            <div className="teamrow"><span className="oppcrest" aria-hidden="true">LR</span>Lewes Road</div>
+            <div className="mmeta">Southern Counties League · Sat 1 November · Mere Lane</div>
+            <div className="mbtns"><button className="sbtn" onClick=${() => toast('Tickets open on TicketCo (prototype).')}>Tickets</button><button className="sbtn light" onClick=${() => toast('Match Centre (TrackIt) opens here (prototype).')}>Match Centre</button></div></section>
+          <section className="matchcard" aria-label="Latest result"><div className="mh"><span>Men's First Team</span><span>Latest result</span></div>
+            <div className="teamrow" style=${{ paddingTop: '10px' }}><${Crest} size=${30} />Ravensmere Town FC<span className="score">0</span></div>
+            <div className="teamrow"><span className="oppcrest" aria-hidden="true">MA</span>Marden Athletic<span className="score">2</span></div>
+            <div className="mmeta">Southern Counties League · Sat 25 October</div>
+            <div className="mbtns"><button className="sbtn light" onClick=${() => toast('Match report (prototype).')}>Report</button></div></section>
+        </div>
+      </div>
+      <div className="secthead"><h2>Latest</h2></div>
+      <div className="newsgrid">${news.map(([k, t, w]) => html`<article className="newscard" key=${t}><div className="thumb" aria-hidden="true">[Photo]</div><div className="body"><span className="kicker" style=${{ fontSize: '12px' }}>${k}</span><h3>${t}</h3><span className="meta">${w}</span></div></article>`)}</div>
+      <div className="secthead"><h2>Next home matches</h2></div>
+      <div className="newsgrid">${homes.map(([team, opp, d, t, ini]) => html`<section className="matchcard" key=${team}><div className="mh"><span>${team}</span><span>${d}</span></div><div className="teamrow" style=${{ paddingTop: '10px' }}><${Crest} size=${30} />Ravensmere Town FC<span className="score" style=${{ fontSize: '16px' }}>${t}</span></div><div className="teamrow"><span className="oppcrest" aria-hidden="true">${ini}</span>${opp}</div><div className="mbtns"><button className="sbtn" onClick=${() => toast('Tickets open on TicketCo (prototype).')}>Tickets</button></div></section>`)}</div>
+    </div>`}
+    <div className="secthead"><h2>Our partners</h2></div>
+    <div className="partners" aria-label="Our partners">${sponsors.map((id) => html`<button key=${id} className="sponsortile" onClick=${() => clickSponsor(id)}>${S.orgs[id].name}</button>`)}</div>
+    <p style=${{ margin: '0 20px 18px', fontSize: '12px', color: '#4b5563' }}>(Prototype) Each page view counts an impression for every sponsor shown, and clicks are recorded for the sponsor value view. Nair & Co so far: ${S.web.impressions.toLocaleString('en-GB')} impressions, ${S.web.clicks} clicks.</p>
+    <section className="newsband">
+      <div className="stack"><h2>Get the club newsletter</h2><span>News, match previews and offers from Ravensmere Town FC, straight to your inbox.</span></div>
+      <form className="stack" onSubmit=${submit} aria-label="Newsletter sign-up">
+        <label className="stack" style=${{ gap: '4px', fontWeight: 600 }}>Your name<input id="nl-name" type="text" value=${name} onChange=${(e) => setName(e.target.value)} required /></label>
+        <label className="stack" style=${{ gap: '4px', fontWeight: 600 }}>Email<input id="nl-email" type="email" value=${email} onChange=${(e) => setEmail(e.target.value)} placeholder="you@example.com" required /></label>
+        <label className="stack" style=${{ gap: '4px', fontWeight: 600 }}>Postcode<input id="nl-pc" type="text" value=${pc} onChange=${(e) => setPc(e.target.value)} /></label>
+        <label className="row" style=${{ alignItems: 'flex-start' }}><input id="nl-tick" type="checkbox" checked=${tick} onChange=${(e) => setTick(e.target.checked)} style=${{ width: '20px', height: '20px', marginTop: '2px', accentColor: '#0b0b0b' }} /><span>${form.wording || 'Keep me updated.'}</span></label>
+        <button className="sbtn" type="submit" style=${{ alignSelf: 'flex-start' }} disabled=${!tick || !name.trim() || !email.trim()}>Sign up</button></form>
+    </section>
+    <footer className="sitefoot2"><div className="row"><${Crest} size=${48} /><div className="stack" style=${{ gap: 0 }}><strong className="cond" style=${{ fontSize: '20px' }}>Ravensmere Town FC</strong><span style=${{ color: '#d1d5db' }}>Mere Lane · an invented club</span></div></div>
+      <div className="row"><button onClick=${() => setPage('prefs') || ctx.track('Website · My preferences')}>My preferences</button><button onClick=${() => toast('Privacy notice (prototype).')}>Privacy</button><button onClick=${() => toast('Cookie settings (prototype).')}>Cookies</button></div>
+      <span style=${{ color: '#d1d5db', fontSize: '12px' }}>Mock-up of a Touchline-style club website</span></footer>
+  </div></div>`;
+}
+
+/* ---------- WordPress admin: the CRM plugin's settings page ---------- */
+function WpAdmin({ ctx }) {
+  const { S, update, toast, audit, role, wpView, setWpView, wpUser, setWpUser } = ctx;
+  const WPU = { sam: 'Sam Patel · Administrator', touchline: 'Touchline · Administrator', chris: 'Chris Oduya · Editor', alex: 'Alex Kent · Author (news only)' };
+  const isAdmin = wpUser === 'sam' || wpUser === 'touchline'; const crmUser = wpUser !== 'alex';
+  const showPosts = !crmUser || (wpView === 'settings' && !isAdmin) || wpView === 'posts';
+  const [tab, setTab] = useState('forms'); const [open, setOpen] = useState('volunteer'); const [cred, setCred] = useState('');
+  const setForm = (id, k, v) => update((n) => { n.wp.forms.find((x) => x.id === id)[k] = v; });
+  const purposes = [['news','Club news'],['tickets','Ticket offers'],['sponsor','Sponsor offers'],['fundraising','Fundraising'],['surveys','Surveys'],['enquiry','Not marketing: enquiries only']];
+  const crmFields = ['Name','Email','Phone','Postcode','Source fact: volunteer roles','Not sent'];
+  const pub = { nair: true, coop: true, weald: false, lambert: false, plough: true, dental: false };
+  const tabs = [['connection','Connection'],['forms','Forms'],['blocks','Blocks'],['sponsors','Sponsors'],['health','Health']];
+  return html`<div className="wp">
+    <div className="wptop"><span>WordPress · Ravensmere Town FC</span><label className="row" style=${{ gap: '6px' }}>Logged into WordPress as<select value=${wpUser} onChange=${(e) => { const v = e.target.value; setWpUser(v); if (v !== 'alex') ctx.setRole(v); setWpView(v === 'sam' || v === 'touchline' ? wpView : (v === 'alex' ? 'posts' : 'crm')); }}>${Object.entries(WPU).map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label></div>
+    <aside className="wpside" aria-label="WordPress admin menu">
+      <span>Dashboard</span>
+      <button className=${wpView === 'posts' ? 'on' : ''} onClick=${() => setWpView('posts')}>Posts</button>
+      ${['Media','Pages','Comments'].map((l) => html`<span key=${l}>${l}</span>`)}
+      ${crmUser && html`<button className=${wpView === 'crm' ? 'on' : ''} onClick=${() => { setWpView('crm'); ctx.setNav({ view: 'home' }); update((n) => { n.flags.wpCrm = true; audit(n, 'Signed in to the CRM through WordPress (ravensmerefc site)', USERS[role].name); }); }}>Club CRM</button>`}
+      ${['Appearance','Plugins'].map((l) => html`<span key=${l}>${l}</span>`)}
+      ${isAdmin && html`<button className=${wpView === 'settings' ? 'on' : ''} onClick=${() => setWpView('settings')}>CRM plugin settings</button>`}
+      <span>Settings</span>
+    </aside>
+    ${showPosts ? html`<main className="wpmain">
+      <h1 style=${{ fontSize: '23px', fontWeight: 400 }}>Posts</h1>
+      <div className="wpbox"><div className="row between"><strong>Preview: Lewes Road at Mere Lane</strong><span style=${{ color: '#50575e' }}>Draft · ${WPU[wpUser].split(' ·')[0]}</span></div><div className="row between"><span>Report: Ravensmere Town FC 0–2 Marden Athletic</span><span style=${{ color: '#50575e' }}>Published · 25 Oct</span></div><button className="wpbtn" style=${{ alignSelf: 'flex-start' }} onClick=${() => toast('Post saved (prototype).')}>Add new post</button></div>
+      ${!crmUser && html`<div className="wpnote warn">Alex can write news here, but isn't a CRM user, so there's no Club CRM menu and no supporter data anywhere in WordPress. WordPress roles never give CRM access: the club owner would invite Alex in the CRM (Settings, Users and permissions) if they needed it.</div>`}
+      ${crmUser && !isAdmin && wpView === 'settings' && html`<div className="wpnote">Only WordPress administrators can change the CRM plugin settings.</div>`}
+    </main>` : wpView === 'crm' ? html`<main className="wpmain" style=${{ padding: 0, gap: 0 }}>
+      <div className="wpnote ok" style=${{ margin: '12px 16px' }}>Signed in to the Ravensmere Town FC CRM as ${USERS[role].name} through WordPress, with no second login. Your CRM role and permissions apply${needsMfa(S, role) ? ', and the CRM still asks for your second sign-in step before risky actions such as sending' : ''}. No CRM data is stored in WordPress. WordPress users who aren't CRM staff don't see this menu.</div>
+      <div style=${{ background: 'var(--bg)', color: 'var(--fg)', colorScheme: 'dark' }}><${Staff} ctx=${ctx} /></div>
+    </main>` : html`<main className="wpmain">
+      <h1 style=${{ fontSize: '23px', fontWeight: 400 }}>CRM plugin settings</h1>
+      <div className="wpnote">Everything about supporters, segments, sponsors and sending is managed in the CRM. This page only connects the site and chooses what it sends. No supporter data is stored or shown here.</div>
+      <div className="wptabs" role="tablist" aria-label="Plugin settings">${tabs.map(([id, l]) => html`<button key=${id} className="wptab" role="tab" aria-selected=${tab === id} onClick=${() => setTab(id)}>${l}</button>`)}</div>
+      ${tab === 'connection' && html`<section className="wpbox"><div className="wpnote ok"><strong>Connected to Ravensmere Town FC.</strong> Credential created 2 Sep by Touchline. It is never shown again.</div>
+        <label className="stack" style=${{ gap: '4px', maxWidth: '520px' }}>Replace the credential (paste the new one from the CRM)<input className="wpinput" type="password" value=${cred} onChange=${(e) => setCred(e.target.value)} placeholder="Paste credential" /></label>
+        <div className="row"><button className="wpbtn" disabled=${!cred} onClick=${() => { setCred(''); update((n) => audit(n, 'WordPress plugin credential replaced', 'Touchline (WordPress admin)')); toast('Credential replaced. Still connected to Ravensmere Town FC.'); }}>Save credential</button></div></section>`}
+      ${tab === 'forms' && html`<section className="wpbox"><p style=${{ margin: 0 }}>Choose which of this site's forms send submissions to the CRM. A form that isn't connected sends nothing.</p>
+        <div className="tablewrap"><table style=${{ minWidth: '600px' }}><thead><tr><th>Form</th><th>Form tool</th><th>Sends to the CRM</th><th>Purpose</th><th></th></tr></thead><tbody>
+          ${S.wp.forms.map((f) => html`<tr key=${f.id}><td><strong>${f.name}</strong></td><td>Site form <span style=${{ color: '#50575e', fontSize: '12px' }}>(tools to confirm, Q15)</span></td><td>${f.feed ? html`<span style=${{ color: '#00a32a', fontWeight: 600 }}>Yes</span>` : 'No'}</td><td>${purposes.find((x) => x[0] === f.purpose)[1]}</td><td><button className="wpbtn sec" onClick=${() => setOpen(open === f.id ? '' : f.id)}>${open === f.id ? 'Close' : 'Edit'}</button></td></tr>`)}
+        </tbody></table></div>
+        ${S.wp.forms.filter((f) => f.id === open).map((f) => { const marketing = f.purpose !== 'enquiry'; const ok = !f.feed || !marketing || f.wording.trim(); return html`<div key=${f.id} className="wpbox" style=${{ background: '#f6f7f7' }}>
+          <strong>${f.name}</strong>
+          <label className="row"><input type="checkbox" checked=${f.feed} onChange=${(e) => setForm(f.id, 'feed', e.target.checked)} /> Send submissions to the Ravensmere Town FC CRM</label>
+          <label className="stack" style=${{ gap: '4px', maxWidth: '360px' }}>Purpose<select className="wpinput" value=${f.purpose} onChange=${(e) => setForm(f.id, 'purpose', e.target.value)}>${purposes.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+          ${marketing && html`<label className="stack" style=${{ gap: '4px' }}>Consent wording supporters see next to the tick box (stored with every submission)<textarea className="wpinput" value=${f.wording} onChange=${(e) => setForm(f.id, 'wording', e.target.value)} placeholder="For example: Email me about volunteering at Ravensmere Town FC. You can unsubscribe at any time."></textarea></label>`}
+          <div className="stack" style=${{ gap: '6px' }}><strong style=${{ fontSize: '13px' }}>Field mapping</strong>${f.fields.map(([ff, cf], i) => html`<label className="row" key=${ff}><span style=${{ minWidth: '200px' }}>${ff}</span><select className="wpinput" value=${cf} onChange=${(e) => update((n) => { n.wp.forms.find((x) => x.id === f.id).fields[i][1] = e.target.value; })}>${crmFields.map((c) => html`<option key=${c}>${c}</option>`)}</select></label>`)}<span style=${{ fontSize: '12px', color: '#50575e' }}>Unmapped fields ("Not sent") never leave the site.</span></div>
+          ${!ok && html`<div className="wpnote warn">Add the consent wording supporters see before connecting a marketing form.</div>`}
+          <div className="row"><button className="wpbtn" disabled=${!ok} onClick=${() => { update((n) => audit(n, 'WordPress plugin: ' + f.name + (f.feed ? ' connected (' + purposes.find((x) => x[0] === f.purpose)[1].toLowerCase() + ')' : ' not connected'), 'Touchline (WordPress admin)')); toast('Saved ' + f.name + '.' + (f.feed ? ' New submissions will reach the CRM.' : ' It sends nothing to the CRM.')); }}>Save changes</button></div>
+        </div>`; })}
+      </section>`}
+      ${tab === 'blocks' && html`<section className="wpbox"><p style=${{ margin: 0 }}>Add these to pages with the block editor, or paste the shortcode.</p><div className="tablewrap"><table style=${{ minWidth: '560px' }}><thead><tr><th>Block</th><th>Shortcode</th><th>What it shows</th></tr></thead><tbody>
+        <tr><td><strong>Miggle: Newsletter sign-up</strong></td><td><code>[miggle_crm_signup form="newsletter"]</code></td><td>The sign-up form, with its consent wording</td></tr>
+        <tr><td><strong>Miggle: Supporter portal</strong></td><td><code>[miggle_crm_portal]</code></td><td>Sign-in, preferences, family and data rights</td></tr>
+        <tr><td><strong>Miggle: Sponsor strip</strong></td><td><code>[miggle_crm_sponsors]</code></td><td>Sponsor logos, counting impressions and clicks</td></tr></tbody></table></div></section>`}
+      ${tab === 'sponsors' && html`<section className="wpbox"><p style=${{ margin: 0 }}>Sponsors appear in the strip automatically. Public figures (such as impressions) show only for sponsors who agreed. That is set in the CRM.</p>${Object.entries(pub).map(([id, on]) => html`<div className="row between" key=${id} style=${{ borderTop: '1px solid #dcdcde', paddingTop: '8px' }}><span>${S.orgs[id].name}</span><span style=${{ color: on ? '#00a32a' : '#50575e' }}>${on ? 'Public figures shown' : 'Logo only'}</span></div>`)}</section>`}
+      ${tab === 'health' && html`<section className="wpbox"><div className="wpnote ok">Last submission reached the CRM: ${S.wp.last}. No failures this week.</div><p style=${{ margin: 0 }}>If submissions fail, Miggle and Touchline are told first. The club is only asked to act if it needs to.</p></section>`}
+    </main>`}</div>`;
+}
+
+const DEFAULT_WORDING = 'Send me club news from Ravensmere Town FC by email. You can unsubscribe at any time.';
+function Tasks() { return null; }
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+</script>
