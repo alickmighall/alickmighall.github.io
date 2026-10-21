@@ -60,6 +60,12 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
   .demobar .spacer { display: none; }
   .demobar button, .demobar .chip { white-space: nowrap; flex: none; }
 }
+/* footer: super-basic Footer.tsx (border-t gray-800, gray-400 text-sm, cyan hover) */
+.appfoot { margin-top: 12px; padding: 24px 0; border-top: 1px solid #1f2937; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 24px; color: var(--muted); font-size: 14px; }
+.appfoot .links { display: flex; align-items: center; gap: 16px; }
+.appfoot button { background: none; border: 0; padding: 4px 0; color: inherit; font: inherit; cursor: pointer; }
+.appfoot button:hover { color: #22d3ee; }
+.appfoot .sep { color: var(--line2); }
 .topbar { display: flex; flex-direction: column; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .topbar h1 { font-size: 22px; }
@@ -104,7 +110,7 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .tab { min-height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: var(--soft); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
 .tab[aria-selected="true"] { background: var(--line); color: #fff; font-weight: 600; }
 .tablewrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; }
+table { border-collapse: collapse; width: 100%; color: inherit; font-size: inherit; }
 th, td { padding: 9px 8px; text-align: left; vertical-align: top; }
 thead th { color: var(--muted); font-weight: 500; font-size: 13px; }
 tbody tr { border-top: 1px solid var(--line); }
@@ -123,9 +129,27 @@ details summary { cursor: pointer; }
 /* typeahead */
 .ta { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .ta .lbl { font-size: 12px; color: var(--muted); }
+.viewas .input { border-color: var(--accent); }
+.input.wpbar { background: #2c3338; color: #f0f0f1; border: 1px solid #50575e; border-radius: 3px; min-height: 30px; padding: 0 6px; }
 .ta-list { position: absolute; z-index: 30; top: 100%; left: 0; right: 0; margin: 4px 0 0; padding: 4px; list-style: none; background: var(--card); border: 1px solid var(--line2); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); max-height: 280px; overflow-y: auto; }
 .ta-opt { padding: 9px 10px; border-radius: 6px; cursor: pointer; }
 .ta-opt.hi { background: var(--accent-soft); color: #fff; }
+.tatrigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; text-align: left; cursor: pointer; font: inherit; }
+.tatrigger > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* mobile bottom sheet: super-basic TypeaheadSelect bottomSheetBreakpointPx mode */
+.sheetwrap { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; justify-content: flex-end; color: var(--fg); font-family: var(--font); font-size: 14px; }
+.sheetback { position: absolute; inset: 0; background: rgba(0,0,0,.6); border: 0; padding: 0; cursor: pointer; }
+.sheet { position: relative; display: flex; flex-direction: column; width: 100%; max-height: min(88vh, 720px); background: var(--card); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.5); }
+.sheethead { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--line); }
+.sheethead h2 { font-size: 18px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sheetdone { background: none; border: 0; color: #22d3ee; font: inherit; font-weight: 600; padding: 0 12px; min-height: 44px; border-radius: 8px; cursor: pointer; }
+.sheetsearch { padding: 8px 12px; }
+.sheetsearch .input { width: 100%; background: var(--bg); color: var(--fg); border-color: var(--line); font-size: 16px; }
+.sheetlist { list-style: none; margin: 0; padding: 0 0 max(12px, env(safe-area-inset-bottom, 0px)); overflow-y: auto; overscroll-behavior: contain; border-top: 1px solid var(--line); max-height: min(52vh, 420px); }
+.sheetopt { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--fg); font: inherit; font-size: 16px; padding: 12px 16px; min-height: 48px; cursor: pointer; }
+.sheetopt[aria-selected="true"] { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+.sheetopt:active { background: var(--line); }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: sheetup .18s ease-out; } @keyframes sheetup { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } } }
 .ta-empty { padding: 9px 10px; color: var(--muted); }
 
 /* board */
@@ -426,16 +450,51 @@ function Lock() { return html`<svg aria-hidden="true" width="14" height="14" vie
 function Money({ can, n, suffix }) { return can('values') ? html`<span className="num">${fmt(n)}${suffix || ''}</span>` : html`<span className="muted" title="Needs the Commercial values permission"><${Lock}/> hidden</span>`; }
 function LockNote({ children }) { return html`<div className="locknote"><${Lock}/><span>${children}</span></div>`; }
 
-function Typeahead({ id, label, options, value, onPick, placeholder, paper, hideLabel }) {
+/* A typeahead that keeps its own choice, for settings the prototype doesn't store */
+function Pick({ id, label, choices, hideLabel, paper, width }) {
+  const [v, setV] = useState(choices[0]);
+  return html`<div style=${{ width: width || '220px', maxWidth: '100%' }}><${Typeahead} id=${id} label=${label} hideLabel=${hideLabel} paper=${paper} options=${choices.map((x) => ({ value: x, label: x }))} value=${v} placeholder="Type or pick" onPick=${setV} /></div>`;
+}
+
+/* true below the given width, kept in step with resizes */
+function useNarrow(px) {
+  const query = '(max-width: ' + px + 'px)';
+  const [m, setM] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => { const mq = window.matchMedia(query); const f = () => setM(mq.matches); f(); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f); }, [query]);
+  return m;
+}
+
+/* Typeahead, as super-basic's TypeaheadSelect: an input with a dropdown list on wider screens; on phones (768px and below, as soccer-logger sets bottomSheetBreakpointPx) a button that opens a bottom sheet with a search box and large rows */
+function Typeahead({ id, label, options, value, onPick, placeholder, paper, hideLabel, inputClass }) {
   const [q, setQ] = useState(''); const [open, setOpen] = useState(false); const [hi, setHi] = useState(0);
+  const sheetMode = useNarrow(768); const [sheet, setSheet] = useState(false); const [sq, setSq] = useState('');
+  const sref = useRef(null); const tref = useRef(null);
   const sel = options.find((o) => o.value === value);
+  const closeSheet = () => { setSheet(false); setSq(''); if (tref.current) tref.current.focus(); };
+  useEffect(() => { if (!sheet) return; const k = (e) => { if (e.key === 'Escape') closeSheet(); }; window.addEventListener('keydown', k); const f = requestAnimationFrame(() => sref.current && sref.current.focus()); return () => { window.removeEventListener('keydown', k); cancelAnimationFrame(f); }; }, [sheet]);
+  useEffect(() => { if (!sheetMode && sheet) { setSheet(false); setSq(''); } }, [sheetMode]);
+  if (sheetMode) {
+    const rows = options.filter((o) => (o.label + ' ' + (o.meta || '')).toLowerCase().includes(sq.trim().toLowerCase()));
+    return html`<div className="ta">
+      <label htmlFor=${id} className=${hideLabel ? 'sr' : 'lbl'}>${label}</label>
+      <button type="button" id=${id} ref=${tref} className=${'input tatrigger' + (paper ? ' paper' : '') + (inputClass ? ' ' + inputClass : '')} aria-haspopup="listbox" aria-expanded=${sheet} onClick=${() => { setSq(''); setSheet(true); }}><span className=${sel ? '' : 'muted'}>${sel ? sel.label : (placeholder || 'Type to search')}</span><span className="muted" aria-hidden="true">▼</span></button>
+      ${sheet && html`<div className="sheetwrap" role="dialog" aria-modal="true" aria-labelledby=${id + '-sheet-title'}>
+        <button type="button" className="sheetback" aria-label="Close picker" onClick=${closeSheet}></button>
+        <div className="sheet">
+          <div className="sheethead"><h2 id=${id + '-sheet-title'}>${label}</h2><button type="button" className="sheetdone" onClick=${closeSheet}>Done</button></div>
+          <div className="sheetsearch"><input ref=${sref} type="search" enterKeyHint="search" className="input" aria-label=${'Search: ' + label} placeholder=${placeholder || 'Type to search'} value=${sq} onChange=${(e) => setSq(e.target.value)} autoComplete="off" /></div>
+          <ul id=${id + '-list'} role="listbox" className="sheetlist">${rows.length ? rows.map((o) => html`<li key=${o.value} role="presentation"><button type="button" role="option" aria-selected=${o.value === value} className="sheetopt" onClick=${() => { onPick(o.value); closeSheet(); }}>${o.label}${o.meta ? html`<span className="muted"> · ${o.meta}</span>` : null}</button></li>`) : html`<li className="ta-empty">No matches</li>`}</ul>
+        </div>
+      </div>`}
+    </div>`;
+  }
   const list = options.filter((o) => (o.label + ' ' + (o.meta || '')).toLowerCase().includes(q.toLowerCase())).slice(0, 8);
   const pick = (o) => { onPick(o.value); setQ(''); setOpen(false); };
   return html`<div className="ta">
     <label htmlFor=${id} className=${hideLabel ? 'sr' : 'lbl'}>${label}</label>
-    <input id=${id} className=${'input' + (paper ? ' paper' : '')} role="combobox" aria-expanded=${open} aria-controls=${id + '-list'} aria-autocomplete="list" autoComplete="off"
+    <input id=${id} className=${'input' + (paper ? ' paper' : '') + (inputClass ? ' ' + inputClass : '')} role="combobox" aria-expanded=${open} aria-controls=${id + '-list'} aria-autocomplete="list" autoComplete="off"
       value=${open ? q : (sel ? sel.label : '')} placeholder=${placeholder || 'Type to search'}
-      onFocus=${() => { setOpen(true); setQ(''); setHi(0); }} onBlur=${() => setTimeout(() => setOpen(false), 120)}
+      onFocus=${() => { setOpen(true); setQ(''); setHi(0); }} onMouseDown=${() => { setOpen(true); setQ(''); setHi(0); }} onBlur=${() => setTimeout(() => setOpen(false), 120)}
       onChange=${(e) => { setQ(e.target.value); setOpen(true); setHi(0); }}
       onKeyDown=${(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(h + 1, list.length - 1)); } else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => Math.max(h - 1, 0)); } else if (e.key === 'Enter' && list[hi]) { e.preventDefault(); pick(list[hi]); } else if (e.key === 'Escape') { setOpen(false); } }} />
     ${open && html`<ul id=${id + '-list'} role="listbox" className="ta-list">
@@ -566,7 +625,7 @@ function Splash({ close }) {
 }
 
 /* ---------- Staff shell ---------- */
-function Staff({ ctx }) {
+function Staff({ ctx, embedded }) {
   const { nav, role, setRole, S, openSugg, visiblePeople } = ctx;
   const [menuOpen, setMenuOpen] = useState(false);
   const go = (v) => { setMenuOpen(false); ctx.go(v); };
@@ -589,8 +648,8 @@ function Staff({ ctx }) {
         </div>
         <div className="topctrls">
           <div style=${{ width: '260px', maxWidth: '100%' }}><${Typeahead} id="gsearch" label="Search people and organisations" hideLabel=${true} options=${searchOpts} value=${null} placeholder="Search name, email or phone" onPick=${(v) => { const [k, id] = v.split(':'); if (k === 'p') go({ view: 'person', id }); else go({ view: 'sponsors', tab: 'org', org: id }); }} /></div>
-          ${role === 'touchline' && html`<label className="field">Club<select className="select" onChange=${(e) => { if (e.target.value !== 'Ravensmere Town FC') ctx.toast('Ashdown Vale and Hollin Bridge have no sample data in this prototype.'); e.target.value = 'Ravensmere Town FC'; }}><option>Ravensmere Town FC</option><option>Ashdown Vale FC</option><option>Hollin Bridge FC</option></select></label>`}
-          <label className="field">Viewing as<select className="select" style=${{ borderColor: 'var(--accent)' }} value=${role} onChange=${(e) => setRole(e.target.value)}>${Object.entries(USERS).map(([id, u]) => html`<option key=${id} value=${id}>${u.name} · ${u.label}</option>`)}</select></label>
+          ${role === 'touchline' && html`<div className="viewas" style=${{ width: '220px', maxWidth: '100%' }}><${Typeahead} id="clubpick" label="Club" options=${['Ravensmere Town FC','Ashdown Vale FC','Hollin Bridge FC'].map((c) => ({ value: c, label: c }))} value="Ravensmere Town FC" placeholder="Type a club name" onPick=${(v) => { if (v !== 'Ravensmere Town FC') ctx.toast('Ashdown Vale and Hollin Bridge have no sample data in this prototype.'); }} /></div>`}
+          <div className="viewas" style=${{ width: '240px', maxWidth: '100%' }}><${Typeahead} id="viewas" label="Viewing as" options=${Object.entries(USERS).map(([id, u]) => ({ value: id, label: u.name + ' · ' + u.label }))} value=${role} placeholder="Type a name or role" onPick=${setRole} /></div>
         </div>
       </header>
       ${nav.view === 'home' && html`<${Home} ctx=${ctx} />`}
@@ -602,8 +661,14 @@ function Staff({ ctx }) {
       ${nav.view === 'matchday' && html`<${Matchday} ctx=${ctx} />`}
       ${nav.view === 'data' && html`<${Data} ctx=${ctx} />`}
       ${nav.view === 'settings' && html`<${Settings} ctx=${ctx} />`}
+      ${!embedded && html`<${Footer} toast=${ctx.toast} />`}
     </main>
   </div>`;
+}
+
+/* Footer, as super-basic's Footer.tsx; hidden when the staff screens are embedded in WordPress admin (WordPress has its own) */
+function Footer({ toast }) {
+  return html`<footer className="appfoot"><div>© 2026 Miggle Ltd</div><div className="links"><button onClick=${() => toast('Terms & Conditions (prototype).')}>Terms & Conditions</button><span className="sep" aria-hidden="true">|</span><button onClick=${() => toast('Privacy & Cookie Policy (prototype).')}>Privacy & Cookie Policy</button></div></footer>`;
 }
 
 /* ---------- digest items (shared by Home and Digest) ---------- */
@@ -657,7 +722,7 @@ function Supporters({ ctx }) {
     <div className="card flat">
       <div className="row">
         <label className="field" style=${{ flex: '1 1 220px' }}>Search<input className="input" value=${q} onChange=${(e) => setQ(e.target.value)} placeholder="Name or email" /></label>
-        <label className="field">Contact type<select className="select" value=${type} onChange=${(e) => setType(e.target.value)}>${types.map((t) => html`<option key=${t}>${t}</option>`)}</select></label>
+        <div style=${{ width: '220px', maxWidth: '100%' }}><${Typeahead} id="ctype" label="Contact type" options=${types.map((t) => ({ value: t, label: t }))} value=${type} placeholder="Type a contact type" onPick=${setType} /></div>
         <label className="row" style=${{ marginTop: '18px' }}><input type="checkbox" checked=${st} onChange=${(e) => setSt(e.target.checked)} /> Season-ticket holders only</label>
         <button className="btn ghost small" style=${{ marginTop: '18px' }} onClick=${() => { setQ(''); setType('All'); setSt(false); }}>Clear filters</button>
       </div>
@@ -768,13 +833,13 @@ function Segments({ ctx }) {
       ${rules.map((r, i) => { const def = catalogue.find((c) => c.id === r.id); return html`<div key=${i} className="stack">
         ${i > 0 && html`<select aria-label="Combine with" className="select" style=${{ width: 'fit-content', minHeight: '32px' }} value=${r.op} onChange=${(e) => setRule(i, 'op', e.target.value)}><option>AND</option><option>OR</option><option>AND NOT</option></select>`}
         <div className="rule"><span className="muted">${def.group}</span>
-          <select aria-label="Rule" className="select" value=${r.id} onChange=${(e) => setRule(i, 'id', e.target.value)}>${catalogue.map((c) => html`<option key=${c.id} value=${c.id}>${c.label}</option>`)}</select>
-          <select aria-label="Value" className="select" value=${r.p} onChange=${(e) => setRule(i, 'p', e.target.value)}>${def.params.map((x) => html`<option key=${x}>${x}</option>`)}</select>
+          <div style=${{ flex: '1 1 260px', minWidth: 0 }}><${Typeahead} id=${'rule' + i} label="Rule" hideLabel=${true} options=${catalogue.map((c) => ({ value: c.id, label: c.label, meta: c.group }))} value=${r.id} placeholder="Type to find a rule" onPick=${(v) => setRule(i, 'id', v)} /></div>
+          <div style=${{ width: '200px', maxWidth: '100%' }}><${Typeahead} id=${'rulev' + i} label="Value" hideLabel=${true} options=${def.params.map((x) => ({ value: x, label: x }))} value=${r.p} placeholder="Type a value" onPick=${(v) => setRule(i, 'p', v)} /></div>
           ${rules.length > 1 && html`<button className="btn ghost small" onClick=${() => setRules((rs) => rs.filter((_, j) => j !== i))}>Remove</button>`}</div></div>`; })}
       <div className="row"><button className="btn ghost small" onClick=${() => setRules((rs) => [...rs, { id: 'att', p: '1 home game', op: 'AND' }])}>+ Add rule</button><span className="muted" style=${{ fontSize: '12px' }}>Catalogue: Behaviour · Demographics · Value${S.uploadedSource ? ' · Uploaded sources' : ''}</span></div>
       <div className="row">
-        <label className="field">Purpose<select className="select" value=${purpose} onChange=${(e) => setPurpose(e.target.value)}>${PURPOSES.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
-        <label className="field">Channel<select className="select" value=${channel} onChange=${(e) => setChannel(e.target.value)}>${CHANNELS.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+        <div style=${{ width: '220px', maxWidth: '100%' }}><${Typeahead} id="segpurpose" label="Purpose" options=${PURPOSES.map(([k, l]) => ({ value: k, label: l }))} value=${purpose} placeholder="Type a purpose" onPick=${setPurpose} /></div>
+        <div style=${{ width: '180px', maxWidth: '100%' }}><${Typeahead} id="segchannel" label="Channel" options=${CHANNELS.map(([k, l]) => ({ value: k, label: l }))} value=${channel} placeholder="Type a channel" onPick=${setChannel} /></div>
       </div>
     </section>
     <section className="card hl" aria-label="Count before list"><h2>Who will receive it</h2>
@@ -822,7 +887,7 @@ function Messages({ ctx }) {
     <div className="row" style=${{ alignItems: 'flex-start', gap: '14px' }}>
       <section className="card" style=${{ flex: '0 1 230px' }}><h2>Blocks</h2>
         ${blocks.map((b, i) => html`<div key=${i} className="row between" style=${{ borderTop: i ? '1px solid var(--line)' : 0, paddingTop: i ? '6px' : 0 }}><span>${labels[b[0]]}</span><span className="row" style=${{ gap: '4px' }}><button className="btn ghost small" aria-label=${'Move ' + labels[b[0]] + ' up'} onClick=${() => move(i, -1)}>↑</button><button className="btn ghost small" aria-label=${'Move ' + labels[b[0]] + ' down'} onClick=${() => move(i, 1)}>↓</button><button className="btn ghost small" aria-label=${'Remove ' + labels[b[0]]} onClick=${() => setBlocks((x) => x.filter((_, j) => j !== i))}>×</button></span></div>`)}
-        <label className="field">Add a block<select className="select" value="" onChange=${(e) => { const t = e.target.value; if (t) setBlocks((b) => [...b.slice(0, -1), [t, t === 'text' ? 'New paragraph. Click to edit in the real product.' : t === 'button' ? 'Find out more' : t === 'sponsor' ? 'The Plough Inn' : ''], b[b.length - 1]]); }}><option value="">Choose…</option>${Object.entries(labels).filter(([k]) => k !== 'footer' && k !== 'header').map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+        <${Typeahead} id="addblock" label="Add a block" options=${Object.entries(labels).filter(([k]) => k !== 'footer' && k !== 'header').map(([k, l]) => ({ value: k, label: l }))} value=${null} placeholder="Type a block, for example Text" onPick=${(t) => setBlocks((b) => [...b.slice(0, -1), [t, t === 'text' ? 'New paragraph. Click to edit in the real product.' : t === 'button' ? 'Find out more' : t === 'sponsor' ? 'The Plough Inn' : ''], b[b.length - 1]])} />
         <div className="tabs" role="tablist" aria-label="Preview size"><button className="tab" role="tab" aria-selected=${!mobile} onClick=${() => setMobile(false)}>Desktop</button><button className="tab" role="tab" aria-selected=${mobile} onClick=${() => setMobile(true)}>Mobile</button></div>
       </section>
       <section className=${'emailprev' + (mobile ? ' mobile' : '')} style=${{ flex: '2 1 420px', minWidth: 0 }} aria-label="Email preview"><div className="paper">${blocks.map(render)}</div></section>
@@ -890,7 +955,7 @@ function useMoveDeal(ctx) {
 }
 function LostReason({ nm, close, done }) {
   const [r, setR] = useState('');
-  return html`<${Modal} title=${'Why was ' + nm + ' lost?'} onClose=${close}><label className="field">Reason (required)<select className="select" value=${r} onChange=${(e) => setR(e.target.value)}><option value="">Choose…</option><option>Price</option><option>Went with another club</option><option>No budget this season</option><option>No response</option><option>Other</option></select></label><div className="row"><button className="btn" disabled=${!r} onClick=${() => done(r)}>Mark as lost</button><button className="btn ghost" onClick=${close}>Cancel</button></div><//>`;
+  return html`<${Modal} title=${'Why was ' + nm + ' lost?'} onClose=${close}><${Typeahead} id="lostreason" label="Reason (required)" options=${['Price','Went with another club','No budget this season','No response','Other'].map((x) => ({ value: x, label: x }))} value=${r} placeholder="Type or pick a reason" onPick=${setR} /><div className="row"><button className="btn" disabled=${!r} onClick=${() => done(r)}>Mark as lost</button><button className="btn ghost" onClick=${close}>Cancel</button></div><//>`;
 }
 
 function Pipeline({ ctx }) {
@@ -911,7 +976,7 @@ function Pipeline({ ctx }) {
           <span style=${{ fontSize: '12px', color: 'var(--accent-hi)' }}><${Money} can=${can} n=${d.value} suffix=${d.stage !== 'won' && d.stage !== 'lost' ? ' · ' + d.prob + '%' : ''} /></span>
           <span className="muted" style=${{ fontSize: '12px' }}>${d.owner} · ${d.close}${d.lostReason ? ' · ' + d.lostReason : ''}</span>
           ${d.history.length ? html`<span className="muted" style=${{ fontSize: '11px' }}>${d.history.length} stage change${d.history.length > 1 ? 's' : ''} recorded</span>` : null}
-          ${edit && html`<select className="select" aria-label=${'Move ' + S.orgs[d.org].name + ' to'} value="" onChange=${(e) => e.target.value && move(d.id, e.target.value)}><option value="">Move to…</option>${STAGES.filter((s) => s[0] !== d.stage).map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select>`}
+          ${edit && html`<${Typeahead} id=${'move-' + d.id} label=${'Move ' + S.orgs[d.org].name + ' to'} hideLabel=${true} options=${STAGES.filter((s) => s[0] !== d.stage).map(([k, l]) => ({ value: k, label: l }))} value=${null} placeholder="Move to…" onPick=${(v) => move(d.id, v)} />`}
         </div>`)}
       </section>`; })}
     </div></div>
@@ -944,7 +1009,7 @@ function Org({ ctx, id }) {
     ${d && d.task && html`<section className="card"><h3>Tasks</h3><div className="listrow"><label className="row"><input type="checkbox" checked=${d.task.done} disabled=${!can('commercialEdit')} onChange=${(e) => { update((n) => { n.deals.find((x) => x.id === d.id).task.done = e.target.checked; audit(n, (e.target.checked ? 'Completed task: ' : 'Reopened task: ') + d.task.text); }); }} /> ${d.task.text}</label><span className="muted">Due ${d.task.due} · ${d.task.owner}</span></div></section>`}
     <section className="card"><h3>Conversations</h3>
       ${(d && d.log ? d.log : []).map((l, i) => html`<div className="listrow" key=${i}><span className="muted" style=${{ width: '80px' }}>${l[0]}</span><span className="muted num" style=${{ width: '70px' }}>${l[1]}</span><span style=${{ flex: '1 1 260px' }}>${l[2]}</span></div>`)}
-      ${can('commercialEdit') ? html`<div className="row"><select aria-label="Type" className="select" value=${kind} onChange=${(e) => setKind(e.target.value)}><option>Call</option><option>Meeting</option><option>Email</option><option>Note</option></select><input aria-label="What happened" className="input" style=${{ flex: '1 1 260px' }} value=${note} onChange=${(e) => setNote(e.target.value)} placeholder="What happened?" /><button className="btn ghost" disabled=${!note || !d} onClick=${() => { update((n) => { const x = n.deals.find((y) => y.id === d.id); x.log = x.log || []; x.log.unshift([kind, '27 Oct', note]); }); setNote(''); toast('Conversation logged.'); }}>Log it</button></div>` : html`<${LockNote}>Only commercial staff and owners log sponsor conversations.<//>`}
+      ${can('commercialEdit') ? html`<div className="row"><div style=${{ width: '150px' }}><${Typeahead} id="logkind" label="Type" hideLabel=${true} options=${['Call','Meeting','Email','Note'].map((x) => ({ value: x, label: x }))} value=${kind} placeholder="Type" onPick=${setKind} /></div><input aria-label="What happened" className="input" style=${{ flex: '1 1 260px' }} value=${note} onChange=${(e) => setNote(e.target.value)} placeholder="What happened?" /><button className="btn ghost" disabled=${!note || !d} onClick=${() => { update((n) => { const x = n.deals.find((y) => y.id === d.id); x.log = x.log || []; x.log.unshift([kind, '27 Oct', note]); }); setNote(''); toast('Conversation logged.'); }}>Log it</button></div>` : html`<${LockNote}>Only commercial staff and owners log sponsor conversations.<//>`}
     </section>
   </div>`;
 }
@@ -995,7 +1060,7 @@ function Matchday({ ctx }) {
       </div><span className="muted" style=${{ fontSize: '12px' }}>One record per fixture. Breakdowns below are separate tables and never multiplied into these totals. Sponsor activation: ${f.sponsor}.</span></section>
     <div className="grid">
       <section className="card"><h3>Ground revenue by category</h3>${[['Bar', f.bar],['Food', f.food],['Shop', f.shop]].map((r) => html`<div className="listrow" key=${r[0]}><span>${r[0]}</span><span className="num">${fmt(r[1])}</span></div>`)}<div className="listrow"><strong>Total</strong><strong className="num">${fmt(ground(f))}</strong></div></section>
-      <section className="card"><div className="row between"><h3>Compare with</h3><select aria-label="Compare with" className="select" value=${cmp} onChange=${(e) => setCmp(e.target.value)}>${FIXTURES.filter((x) => x.id !== sel).map((x) => html`<option key=${x.id} value=${x.id}>${x.opp}</option>`)}</select></div>
+      <section className="card"><div className="row between"><h3>Compare with</h3><div style=${{ width: '240px', maxWidth: '100%' }}><${Typeahead} id="cmpmatch" label="Compare with" hideLabel=${true} options=${FIXTURES.filter((x) => x.id !== sel).map((x) => ({ value: x.id, label: x.opp, meta: x.date }))} value=${cmp} placeholder="Type an opponent" onPick=${setCmp} /></div></div>
         <div className="listrow muted"><span></span><span>${f.opp} · ${c.opp}</span></div>
         ${[['Attendance', f.att, c.att, (n) => n],['Tickets', f.tickets, c.tickets, fmt],['Ground revenue', ground(f), ground(c), fmt],['Hospitality', f.hosp, c.hosp, fmt]].map((r) => html`<div className="listrow" key=${r[0]}><span>${r[0]}</span><span className="num">${r[3](r[1])} · ${r[3](r[2])}</span></div>`)}</section>
     </div>
@@ -1067,19 +1132,19 @@ function Upload({ ctx }) {
     <ol className="steps" aria-label="Steps">${names.map((n, i) => html`<li key=${n} aria-current=${step === i + 1 ? 'step' : undefined}>${i + 1} ${n}${step > i + 1 ? ' ✓' : ''}</li>`)}</ol>
     ${step === 1 && html`<section className="card"><h2>Register the source</h2><div className="grid" style=${{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
       <label className="field">Name<input className="input" defaultValue="Summer Fun Day raffle sign-ups" /></label>
-      <label className="field">Type<select className="select"><option>Event sign-up</option><option>Survey</option><option>Raffle</option><option>Volunteer list</option></select></label>
-      <label className="field">One-off or recurring<select className="select"><option>One-off</option><option>Recurring</option></select></label>
+      <${Pick} id="ftype" label="Type" choices=${['Event sign-up','Survey','Raffle','Volunteer list']} />
+      <${Pick} id="frecur" label="One-off or recurring" choices=${['One-off','Recurring']} />
       <label className="field">Purpose<input className="input" defaultValue="Event follow-up" /></label>
-      <label className="field">Lawful basis<select className="select"><option>Consent</option><option>Legitimate interests</option></select></label>
-      <label className="field">Keep for<select className="select"><option>12 months</option><option>6 months</option><option>24 months</option></select></label>
-      <label className="field">Who can see it<select className="select"><option>All staff</option><option>Owners only</option></select></label></div>
+      <${Pick} id="fbasis" label="Lawful basis" choices=${['Consent','Legitimate interests']} />
+      <${Pick} id="fkeep" label="Keep for" choices=${['12 months','6 months','24 months']} />
+      <${Pick} id="fsee" label="Who can see it" choices=${['All staff','Owners only']} /></div>
       <button className="btn" style=${{ alignSelf: 'flex-start' }} onClick=${() => setStep(2)}>Next: upload</button></section>`}
     ${step === 2 && html`<section className="card"><h2>Upload the file</h2><button className="btn ghost" style=${{ alignSelf: 'flex-start' }} onClick=${() => setStep(3)}>Choose file: raffle-signups.xlsx (prototype file, 212 rows)</button>
       <span className="muted">XLSX or CSV. In the prototype any choice loads the sample raffle file.</span></section>`}
     ${step === 3 && html`<section className="card"><h2>Map the columns</h2><p className="soft" style=${{ margin: 0 }}>Suggestions are made automatically. Confirm each one before anything loads.</p>
       <div className="tablewrap"><table style=${{ minWidth: '620px' }}><thead><tr><th>Column in file</th><th>Suggested meaning</th><th>Confirm</th></tr></thead><tbody>
         ${cols.map((c, i) => html`<tr key=${c[0]}><td><strong>${c[0]}</strong></td><td>${c[1]}</td><td><label className="row"><input type="checkbox" checked=${confirmed[i]} onChange=${(e) => setConfirmed((x) => x.map((v, j) => j === i ? e.target.checked : v))} /> Confirmed</label></td></tr>`)}
-        <tr style=${{ background: '#1c1917' }}><td><strong>Any allergies</strong></td><td><span style=${{ color: 'var(--warn)' }}>Possible health data (special category)</span></td><td><select aria-label="Allergies column" className="select" value=${allergy} onChange=${(e) => setAllergy(e.target.value)}><option value="exclude">Leave it out</option><option value="purpose">Keep, with a purpose</option></select></td></tr>
+        <tr style=${{ background: '#1c1917' }}><td><strong>Any allergies</strong></td><td><span style=${{ color: 'var(--warn)' }}>Possible health data (special category)</span></td><td><div style=${{ width: '220px', maxWidth: '100%' }}><${Typeahead} id="allergy" label="Allergies column" hideLabel=${true} options=${[{ value: 'exclude', label: 'Leave it out' }, { value: 'purpose', label: 'Keep, with a purpose' }]} value=${allergy} placeholder="Type or pick" onPick=${setAllergy} /></div></td></tr>
       </tbody></table></div>
       ${allergy === 'purpose' && html`<label className="field">Purpose for allergy data<input className="input" placeholder="For example: catering at next year's fun day" /></label>`}
       <label className="field" style=${{ maxWidth: '640px' }}>Wording shown for "Happy to hear from the club?"<input className="input" defaultValue="Tick if you're happy for Ravensmere Town FC to email you about future events" /></label>
@@ -1160,7 +1225,7 @@ function Settings({ ctx }) {
     ${tab === 'users' && html`<div className="grid">
       <section className="card"><h2>Sam Patel</h2><span className="soft">Club owner · every permission · ${S.mfa.sam ? 'second step set up' : 'second step not set up yet'}</span></section>
       <section className="card flat"><h2>Invite someone</h2><span className="soft">CRM access only ever comes from an invite here. A WordPress account on the club's site never gives CRM access on its own.</span>
-        <div className="row"><input aria-label="Email to invite" className="input" style=${{ flex: '1 1 220px' }} placeholder="alex.kent@example.com" /><select aria-label="Role" className="select"><option>Club staff</option><option>Commercial staff</option></select><button className="btn ghost" onClick=${() => toast('Invite sent (prototype). Once accepted, the Club CRM menu appears for them in WordPress too.')}>Send invite</button></div></section>
+        <div className="row"><input aria-label="Email to invite" className="input" style=${{ flex: '1 1 220px' }} placeholder="alex.kent@example.com" /><${Pick} id="inviterole" label="Role" hideLabel=${true} choices=${['Club staff','Commercial staff']} width="200px" /><button className="btn ghost" onClick=${() => toast('Invite sent (prototype). Once accepted, the Club CRM menu appears for them in WordPress too.')}>Send invite</button></div></section>
       ${['jo','chris'].map((u) => html`<section className="card" key=${u}><h2>${USERS[u].name}</h2><span className="soft">${USERS[u].label}</span>
         <fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="stack"><legend className="muted" style=${{ marginBottom: '6px' }}>Permissions</legend>
           ${GRANTS.map(([k, l]) => { const on = k === 'values' && u === 'jo' ? S.grants[u][k] !== false : !!S.grants[u][k]; return html`<label className="row" key=${k}><input type="checkbox" checked=${on} onChange=${(e) => toggle(u, k, e.target.checked)} /> ${l}${RISKY.includes(k) ? html` <span className="muted" style=${{ fontSize: '12px' }}>· needs a second sign-in step</span>` : null}</label>`; })}</fieldset>
@@ -1168,7 +1233,7 @@ function Settings({ ctx }) {
       </section>`)}
     </div>`}
     ${tab === 'digest' && html`<section className="card" style=${{ maxWidth: '640px' }}><h2>My weekly digest</h2>
-      <label className="field">Day and time<select className="select" style=${{ maxWidth: '260px' }}><option>Monday, 8am</option><option>Friday, 8am</option><option>Every weekday, 8am</option></select></label>
+      <${Pick} id="digestday" label="Day and time" choices=${['Monday, 8am','Friday, 8am','Every weekday, 8am']} width="260px" />
       <label className="row"><input type="checkbox" checked=${S.digestOnlyNeeded} onChange=${(e) => update((n) => { n.digestOnlyNeeded = e.target.checked; })} /> Only email me when something needs me</label>
       ${admin && html`<fieldset style=${{ border: 0, margin: 0, padding: 0 }} className="stack"><legend className="soft" style=${{ marginBottom: '6px' }}>Monthly sponsor reports</legend>
         <label className="row"><input type="radio" name="rep" checked=${!S.reportsAuto} onChange=${() => update((n) => { n.reportsAuto = false; })} /> Wait for my approval</label>
@@ -1185,7 +1250,7 @@ function Digest({ ctx }) {
   const all = ctx.S.digestOnlyNeeded && !items.length;
   return html`<div className="paperwrap"><div className="mail">
     <div className="row between"><div className="mailhead"><span><strong>From:</strong> Ravensmere Town FC CRM</span><span><strong>To:</strong> ${USERS[who].name}</span><span><strong>Subject:</strong> Ravensmere Town FC: ${items.length ? items.length + ' thing' + (items.length > 1 ? 's' : '') + ' need' + (items.length > 1 ? '' : 's') + ' you this week' : 'nothing needs you this week'}</span><span><strong>Sent:</strong> Monday 27 October, 8:00</span></div>
-      <label className="field">Show the digest for<select className="select" value=${who} onChange=${(e) => setWho(e.target.value)}><option value="sam">Sam Patel (owner)</option><option value="jo">Jo Whitfield (commercial)</option><option value="chris">Chris Oduya (club staff)</option></select></label></div>
+      <div style=${{ width: '260px', maxWidth: '100%' }}><${Typeahead} id="digestfor" label="Show the digest for" paper=${true} options=${['sam','jo','chris'].map((k) => ({ value: k, label: USERS[k].name + ' · ' + USERS[k].label }))} value=${who} placeholder="Type a name or role" onPick=${setWho} /></div></div>
     ${all ? html`<p className="soft">Sam chose "Only email me when something needs me", so no digest was sent this week.</p>` : html`<div className="mailbody">
       <div className="clubhead" style=${{ justifyContent: 'flex-start' }}><${Crest} size=${36} /><strong style=${{ fontSize: '17px' }}>Ravensmere Town FC · your week</strong></div>
       <div style=${{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -1240,7 +1305,7 @@ function Portal({ ctx, embedded }) {
         ${S.childRequests.map((c) => html`<div className="pfield" key=${c.child}><strong>${c.child}</strong><span style=${{ color: 'var(--ink-soft)' }}>${c.status === 'pending' ? 'Waiting for the club to confirm.' : c.status === 'confirmed' ? 'Confirmed. You can now manage their preferences.' : 'The club couldn’t confirm this link. They’ve emailed you.'}</span></div>`)}
         <div className="pfield" style=${{ borderStyle: 'dashed', gap: '10px' }}><strong style=${{ fontSize: '17px' }}>Add my child</strong>
           <label className="stack" style=${{ gap: '4px', fontSize: '15px' }}>Child's name<input className="input paper" value=${child} onChange=${(e) => setChild(e.target.value)} placeholder="For example Ella Hale" /></label>
-          <label className="stack" style=${{ gap: '4px', fontSize: '15px' }}>How they're connected to the club<select className="select paper" value=${how} onChange=${(e) => setHow(e.target.value)}><option>Junior season ticket</option><option>Junior match tickets</option><option>Plays for a junior team</option><option>Other</option></select></label>
+          <div style=${{ fontSize: '15px' }}><${Typeahead} id="famhow" label="How they're connected to the club" paper=${true} options=${['Junior season ticket','Junior match tickets','Plays for a junior team','Other'].map((x) => ({ value: x, label: x }))} value=${how} placeholder="Type or pick" onPick=${setHow} /></div>
           <button className="pbtn" disabled=${!child.trim()} onClick=${() => { update((n) => { n.childRequests.push({ child: child.trim(), how, parent: 'karen', status: 'pending' }); audit(n, 'Parent link requested by Karen Hale for ' + child.trim(), 'Karen Hale (portal)'); }); setChild(''); toast('Request sent. The club will confirm it.'); }}>Send request to the club</button>
           <p style=${{ margin: 0, fontSize: '13px', color: 'var(--ink-muted)' }}>The club will confirm this link before you can manage their preferences.</p></div>`}
       ${tab === 'data' && html`<h1 style=${{ fontSize: '22px' }}>What we hold about you</h1>
@@ -1348,7 +1413,7 @@ function WpAdmin({ ctx }) {
   const pub = { nair: true, coop: true, weald: false, lambert: false, plough: true, dental: false };
   const tabs = [['connection','Connection'],['forms','Forms'],['blocks','Blocks'],['sponsors','Sponsors'],['health','Health']];
   return html`<div className="wp">
-    <div className="wptop"><span>WordPress · Ravensmere Town FC</span><label className="row" style=${{ gap: '6px' }}>Logged into WordPress as<select value=${wpUser} onChange=${(e) => { const v = e.target.value; setWpUser(v); if (v !== 'alex') ctx.setRole(v); setWpView(v === 'sam' || v === 'touchline' ? wpView : (v === 'alex' ? 'posts' : 'crm')); }}>${Object.entries(WPU).map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label></div>
+    <div className="wptop"><span>WordPress · Ravensmere Town FC</span><div className="row" style=${{ gap: '6px', flexWrap: 'nowrap' }}><span aria-hidden="true">Logged into WordPress as</span><div style=${{ width: '250px', maxWidth: '60vw' }}><${Typeahead} id="wpuser" label="Logged into WordPress as" hideLabel=${true} inputClass="wpbar" options=${Object.entries(WPU).map(([k, l]) => ({ value: k, label: l }))} value=${wpUser} placeholder="Type a name or role" onPick=${(v) => { setWpUser(v); if (v !== 'alex') ctx.setRole(v); setWpView(v === 'sam' || v === 'touchline' ? wpView : (v === 'alex' ? 'posts' : 'crm')); }} /></div></div></div>
     <aside className="wpside" aria-label="WordPress admin menu">
       <span>Dashboard</span>
       <button className=${wpView === 'posts' ? 'on' : ''} onClick=${() => setWpView('posts')}>Posts</button>
@@ -1365,7 +1430,7 @@ function WpAdmin({ ctx }) {
       ${crmUser && !isAdmin && wpView === 'settings' && html`<div className="wpnote">Only WordPress administrators can change the CRM plugin settings.</div>`}
     </main>` : wpView === 'crm' ? html`<main className="wpmain" style=${{ padding: 0, gap: 0 }}>
       <div className="wpnote ok" style=${{ margin: '12px 16px' }}>Signed in to the Ravensmere Town FC CRM as ${USERS[role].name} through WordPress, with no second login. Your CRM role and permissions apply${needsMfa(S, role) ? ', and the CRM still asks for your second sign-in step before risky actions such as sending' : ''}. No CRM data is stored in WordPress. WordPress users who aren't CRM staff don't see this menu.</div>
-      <div style=${{ background: 'var(--bg)', color: 'var(--fg)', colorScheme: 'dark' }}><${Staff} ctx=${ctx} /></div>
+      <div style=${{ background: 'var(--bg)', color: 'var(--fg)', colorScheme: 'dark' }}><${Staff} ctx=${ctx} embedded=${true} /></div>
     </main>` : html`<main className="wpmain">
       <h1 style=${{ fontSize: '23px', fontWeight: 400 }}>CRM plugin settings</h1>
       <div className="wpnote">Everything about supporters, segments, sponsors and sending is managed in the CRM. This page only connects the site and chooses what it sends. No supporter data is stored or shown here.</div>
@@ -1380,9 +1445,9 @@ function WpAdmin({ ctx }) {
         ${S.wp.forms.filter((f) => f.id === open).map((f) => { const marketing = f.purpose !== 'enquiry'; const ok = !f.feed || !marketing || f.wording.trim(); return html`<div key=${f.id} className="wpbox" style=${{ background: '#f6f7f7' }}>
           <strong>${f.name}</strong>
           <label className="row"><input type="checkbox" checked=${f.feed} onChange=${(e) => setForm(f.id, 'feed', e.target.checked)} /> Send submissions to the Ravensmere Town FC CRM</label>
-          <label className="stack" style=${{ gap: '4px', maxWidth: '360px' }}>Purpose<select className="wpinput" value=${f.purpose} onChange=${(e) => setForm(f.id, 'purpose', e.target.value)}>${purposes.map(([k, l]) => html`<option key=${k} value=${k}>${l}</option>`)}</select></label>
+          <div style=${{ maxWidth: '360px' }}><${Typeahead} id=${'wppurpose-' + f.id} label="Purpose" paper=${true} inputClass="wpinput" options=${purposes.map(([k, l]) => ({ value: k, label: l }))} value=${f.purpose} placeholder="Type a purpose" onPick=${(v) => setForm(f.id, 'purpose', v)} /></div>
           ${marketing && html`<label className="stack" style=${{ gap: '4px' }}>Consent wording supporters see next to the tick box (stored with every submission)<textarea className="wpinput" value=${f.wording} onChange=${(e) => setForm(f.id, 'wording', e.target.value)} placeholder="For example: Email me about volunteering at Ravensmere Town FC. You can unsubscribe at any time."></textarea></label>`}
-          <div className="stack" style=${{ gap: '6px' }}><strong style=${{ fontSize: '13px' }}>Field mapping</strong>${f.fields.map(([ff, cf], i) => html`<label className="row" key=${ff}><span style=${{ minWidth: '200px' }}>${ff}</span><select className="wpinput" value=${cf} onChange=${(e) => update((n) => { n.wp.forms.find((x) => x.id === f.id).fields[i][1] = e.target.value; })}>${crmFields.map((c) => html`<option key=${c}>${c}</option>`)}</select></label>`)}<span style=${{ fontSize: '12px', color: '#50575e' }}>Unmapped fields ("Not sent") never leave the site.</span></div>
+          <div className="stack" style=${{ gap: '6px' }}><strong style=${{ fontSize: '13px' }}>Field mapping</strong>${f.fields.map(([ff, cf], i) => html`<div className="row" key=${ff}><span style=${{ minWidth: '200px' }} aria-hidden="true">${ff}</span><div style=${{ width: '260px', maxWidth: '100%' }}><${Typeahead} id=${'wpmap-' + f.id + '-' + i} label=${ff + ': CRM field'} hideLabel=${true} paper=${true} inputClass="wpinput" options=${crmFields.map((c) => ({ value: c, label: c }))} value=${cf} placeholder="Type a CRM field" onPick=${(v) => update((n) => { n.wp.forms.find((x) => x.id === f.id).fields[i][1] = v; })} /></div></div>`)}<span style=${{ fontSize: '12px', color: '#50575e' }}>Unmapped fields ("Not sent") never leave the site.</span></div>
           ${!ok && html`<div className="wpnote warn">Add the consent wording supporters see before connecting a marketing form.</div>`}
           <div className="row"><button className="wpbtn" disabled=${!ok} onClick=${() => { update((n) => audit(n, 'WordPress plugin: ' + f.name + (f.feed ? ' connected (' + purposes.find((x) => x[0] === f.purpose)[1].toLowerCase() + ')' : ' not connected'), 'Touchline (WordPress admin)')); toast('Saved ' + f.name + '.' + (f.feed ? ' New submissions will reach the CRM.' : ' It sends nothing to the CRM.')); }}>Save changes</button></div>
         </div>`; })}
